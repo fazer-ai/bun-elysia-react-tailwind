@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"]
+    "includes": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "tests/**/*.{ts,tsx}"]
   },
   "formatter": {
     "enabled": true,
@@ -16,7 +16,7 @@
     "lineEnding": "lf"
   },
   "linter": {
-    "includes": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
+    "includes": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "tests/**/*.{ts,tsx}"],
     "enabled": true,
     "rules": {
       "recommended": true
