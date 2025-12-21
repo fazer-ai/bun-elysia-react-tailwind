@@ -1,12 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
 
-import {
-  createUser,
-  getUserByEmail,
-  hashPassword,
-  verifyPassword,
-} from "@/api/auth/auth.service";
-
 const mockUser = {
   id: BigInt(1),
   email: "test@example.com",
@@ -28,6 +21,13 @@ const mockPrisma = {
 mock.module("@/api/lib/prisma", () => ({
   default: mockPrisma,
 }));
+
+import {
+  createUser,
+  getUserByEmail,
+  hashPassword,
+  verifyPassword,
+} from "@/api/auth/auth.service";
 
 describe("auth.service", () => {
   beforeEach(() => {
