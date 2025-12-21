@@ -14,7 +14,7 @@
     "build": "bun run build.ts",
     "test": "bun test --coverage",
     "test-watch": "bun test --watch",
-    "lint": "bun biome check",
+    "lint": "bun biome check --error-on-warnings",
     "format": "bun biome check --write",
     "build-check": "bunx tsc --noEmit",
     "setup": "bun ./scripts/setup.ts",
