@@ -21,7 +21,8 @@
     "set-admin": "bun scripts/set-admin.ts",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
-    "i18n:extract": "i18next 'src/client/**/*.{ts,tsx}' --config i18next-parser.config.cjs"
+    "i18n:extract": "i18next 'src/client/**/*.{ts,tsx}' --config i18next-parser.config.cjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "@elysiajs/cookie": "^0.8.0",
@@ -53,6 +54,7 @@
     "@types/bun": "latest",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "husky": "^9.1.7",
     "i18next-parser": "^9.3.0",
     "pino-caller": "^4.0.0",
     "prisma": "^7.2.0"

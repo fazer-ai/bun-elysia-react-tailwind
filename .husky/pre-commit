@@ -1,0 +1,3 @@
+bun lint
+bun build-check
+bun test
