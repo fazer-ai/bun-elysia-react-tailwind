@@ -50,6 +50,7 @@ A modern full-stack TypeScript template combining Bun, Elysia, React 19, and Tai
 ### 🛠️ Developer Experience
 
 - **[Biome](https://biomejs.dev/)** for linting and formatting
+- **[Husky](https://typicode.github.io/husky/)** pre-commit hooks (lint, type-check, tests)
 - Hot module reloading in development
 - End-to-end type safety with Eden Treaty (Elysia client)
 - Path aliases (`@/`) for clean imports
@@ -131,7 +132,6 @@ Then, access the app at `http://localhost:3000`.
 ## Roadmap
 
 - [ ] Server-Side Rendering (SSR)
-- [ ] Pre-commit hooks
 - [ ] OpenAPI/Swagger documentation for API endpoints
 - [ ] WebSocket support for real-time features
 - [ ] Dark mode and theming system
