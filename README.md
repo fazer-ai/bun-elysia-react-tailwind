@@ -139,6 +139,12 @@ Then, access the app at `http://localhost:3000`.
 - [ ] Improved deployment setup in Dockerfile, following recommendations from ElysiaJS and Bun's docs.
   - [ ] Use build command
   - [ ] Multi-core support
+- [ ] Optimized frontend code
+  - [ ] Code splitting
+  - [ ] Lazy loading
+  - [ ] Proper treeshaking
+- [ ] Components
+  - [ ] ProtectedRoute
 
 ## License
 
