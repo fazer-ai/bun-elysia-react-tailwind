@@ -145,6 +145,7 @@ Then, access the app at `http://localhost:3000`.
   - [ ] Proper treeshaking
 - [ ] Components
   - [ ] ProtectedRoute
+- [ ] Lucide Icons
 
 ## License
 

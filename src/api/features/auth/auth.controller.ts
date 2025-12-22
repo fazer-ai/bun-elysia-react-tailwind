@@ -4,7 +4,7 @@ import {
   getUserByEmail,
   hashPassword,
   verifyPassword,
-} from "@/api/auth/auth.service";
+} from "@/api/features/auth/auth.service";
 import { authPlugin } from "@/api/lib/auth";
 
 export const authController = new Elysia({ prefix: "/auth" })

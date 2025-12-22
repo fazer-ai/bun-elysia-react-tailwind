@@ -11,7 +11,7 @@ import {
 
 setupPrismaMock();
 
-const { authController } = await import("@/api/auth/auth.controller");
+const { authController } = await import("@/api/features/auth/auth.controller");
 
 const createTestClient = () => {
   const app = new Elysia().use(authController);

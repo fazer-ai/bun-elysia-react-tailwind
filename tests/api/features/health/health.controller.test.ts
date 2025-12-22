@@ -9,7 +9,9 @@ import {
 
 setupPrismaMock();
 
-const { healthController } = await import("@/api/health/health.controller");
+const { healthController } = await import(
+  "@/api/features/health/health.controller"
+);
 
 const createTestClient = () => {
   const app = new Elysia().use(healthController);

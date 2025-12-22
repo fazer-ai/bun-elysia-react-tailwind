@@ -10,7 +10,7 @@ import {
 setupPrismaMock();
 
 const { getUserByEmail, createUser, hashPassword, verifyPassword } =
-  await import("@/api/auth/auth.service");
+  await import("@/api/features/auth/auth.service");
 
 describe("auth.service", () => {
   beforeEach(() => {
