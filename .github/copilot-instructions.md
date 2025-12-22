@@ -5,5 +5,5 @@
 - "fazer.ai" should always be styled as "fazer.ai" (all lowercase). In specific cases, "fazer-ai" is acceptable as well. Never use "Fazer.ai" or "Fazer.AI".
 - Always update localization keys when adding or modifying user-facing text.
 - Always consider UX for backend requests: loading states, debouncing, error handling, and user feedback.
-- Always run `bun format`, `bun build-check`, and `bun test` after applying all code changes to ensure code quality and correctness.
+- Always run `bun check` after applying all code changes to ensure code quality and correctness.
 - Use magic comments like `// t('translation.key', 'Translation')` to indicate localization keys inside static objects that do not have access to `t` function.

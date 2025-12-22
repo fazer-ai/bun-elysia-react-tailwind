@@ -1,4 +1,1 @@
-bun lint
-bun build-check
-bun test
-bun i18n:extract
+bun check
