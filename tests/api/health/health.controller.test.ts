@@ -1,16 +1,15 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { treaty } from "@elysiajs/eden";
 import { Elysia } from "elysia";
+import {
+  mockQueryRaw,
+  resetPrismaMocks,
+  setupPrismaMock,
+} from "@/tests/utils/prisma-mock";
 
-import { healthController } from "@/api/health/health.controller";
+setupPrismaMock();
 
-const mockPrisma = {
-  $queryRaw: mock(() => Promise.resolve([{ 1: 1 }])),
-};
-
-mock.module("@/api/lib/prisma", () => ({
-  default: mockPrisma,
-}));
+const { healthController } = await import("@/api/health/health.controller");
 
 const createTestClient = () => {
   const app = new Elysia().use(healthController);
@@ -19,12 +18,12 @@ const createTestClient = () => {
 
 describe("healthController", () => {
   beforeEach(() => {
-    mockPrisma.$queryRaw.mockReset();
+    resetPrismaMocks();
   });
 
   describe("GET /health", () => {
     test("returns ok status when database is healthy", async () => {
-      mockPrisma.$queryRaw.mockResolvedValueOnce([{ 1: 1 }]);
+      mockQueryRaw.mockResolvedValueOnce([{ 1: 1 }]);
 
       const api = createTestClient();
       const response = await api.health.get();
@@ -36,9 +35,7 @@ describe("healthController", () => {
     });
 
     test("returns degraded status when database is unhealthy", async () => {
-      mockPrisma.$queryRaw.mockRejectedValueOnce(
-        new Error("Connection failed"),
-      );
+      mockQueryRaw.mockRejectedValueOnce(new Error("Connection failed"));
 
       const api = createTestClient();
       const response = await api.health.get();
@@ -50,7 +47,7 @@ describe("healthController", () => {
     });
 
     test("includes package info in response", async () => {
-      mockPrisma.$queryRaw.mockResolvedValueOnce([{ 1: 1 }]);
+      mockQueryRaw.mockResolvedValueOnce([{ 1: 1 }]);
 
       const api = createTestClient();
       const response = await api.health.get();

@@ -1,44 +1,17 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { treaty } from "@elysiajs/eden";
 import { Elysia } from "elysia";
+import {
+  mockCreate,
+  mockFindFirst,
+  mockUser,
+  resetPrismaMocks,
+  setupPrismaMock,
+} from "@/tests/utils/prisma-mock";
 
-import { authController } from "@/api/auth/auth.controller";
-import * as authService from "@/api/auth/auth.service";
+setupPrismaMock();
 
-const mockUser = {
-  id: BigInt(1),
-  email: "test@example.com",
-  passwordHash: "$2b$10$hashedpassword",
-  role: "USER" as const,
-};
-
-const mockPrisma = {
-  user: {
-    findFirst: mock(() => Promise.resolve(null)),
-    findUnique: mock(() => Promise.resolve(null)),
-    create: mock(() => Promise.resolve(mockUser)),
-  },
-  $queryRaw: mock(() => Promise.resolve([{ 1: 1 }])),
-};
-
-mock.module("@/api/lib/prisma", () => ({
-  default: mockPrisma,
-}));
-
-mock.module("@/api/auth/auth.service", () => ({
-  getUserByEmail: mock(async () => {
-    return mockPrisma.user.findFirst();
-  }),
-  createUser: mock(async () => {
-    return mockPrisma.user.create();
-  }),
-  hashPassword: mock(async (password: string) => {
-    return Bun.password.hash(password, { algorithm: "bcrypt", cost: 4 });
-  }),
-  verifyPassword: mock(async (password: string, hash: string) => {
-    return Bun.password.verify(password, hash);
-  }),
-}));
+const { authController } = await import("@/api/auth/auth.controller");
 
 const createTestClient = () => {
   const app = new Elysia().use(authController);
@@ -47,20 +20,13 @@ const createTestClient = () => {
 
 describe("authController", () => {
   beforeEach(() => {
-    mock.restore();
-    mockPrisma.user.findFirst.mockReset();
-    mockPrisma.user.create.mockReset();
+    resetPrismaMocks();
   });
 
   describe("POST /auth/signup", () => {
     test("creates a new user successfully", async () => {
-      const getUserByEmail = authService.getUserByEmail as ReturnType<
-        typeof mock
-      >;
-      const createUser = authService.createUser as ReturnType<typeof mock>;
-
-      getUserByEmail.mockResolvedValueOnce(null);
-      createUser.mockResolvedValueOnce(mockUser);
+      mockFindFirst.mockResolvedValueOnce(null);
+      mockCreate.mockResolvedValueOnce(mockUser);
 
       const api = createTestClient();
       const response = await api.auth.signup.post({
@@ -78,10 +44,7 @@ describe("authController", () => {
     });
 
     test("returns 400 for duplicate email", async () => {
-      const getUserByEmail = authService.getUserByEmail as ReturnType<
-        typeof mock
-      >;
-      getUserByEmail.mockResolvedValueOnce(mockUser);
+      mockFindFirst.mockResolvedValueOnce(mockUser);
 
       const api = createTestClient();
       const response = await api.auth.signup.post({
@@ -125,10 +88,7 @@ describe("authController", () => {
       });
       const userWithHash = { ...mockUser, passwordHash: hashedPassword };
 
-      const getUserByEmail = authService.getUserByEmail as ReturnType<
-        typeof mock
-      >;
-      getUserByEmail.mockResolvedValueOnce(userWithHash);
+      mockFindFirst.mockResolvedValueOnce(userWithHash);
 
       const api = createTestClient();
       const response = await api.auth.login.post({
@@ -142,10 +102,7 @@ describe("authController", () => {
     });
 
     test("returns 401 for non-existent user", async () => {
-      const getUserByEmail = authService.getUserByEmail as ReturnType<
-        typeof mock
-      >;
-      getUserByEmail.mockResolvedValueOnce(null);
+      mockFindFirst.mockResolvedValueOnce(null);
 
       const api = createTestClient();
       const response = await api.auth.login.post({
@@ -167,10 +124,7 @@ describe("authController", () => {
       });
       const userWithHash = { ...mockUser, passwordHash: hashedPassword };
 
-      const getUserByEmail = authService.getUserByEmail as ReturnType<
-        typeof mock
-      >;
-      getUserByEmail.mockResolvedValueOnce(userWithHash);
+      mockFindFirst.mockResolvedValueOnce(userWithHash);
 
       const api = createTestClient();
       const response = await api.auth.login.post({

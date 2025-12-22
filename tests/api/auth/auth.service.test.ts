@@ -1,52 +1,34 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
-
-const mockUser = {
-  id: BigInt(1),
-  email: "test@example.com",
-  passwordHash: "$2b$10$hashedpassword",
-  role: "USER" as const,
-  createdAt: new Date("2025-01-01"),
-  updatedAt: new Date("2025-01-01"),
-};
-
-type MockUser = typeof mockUser | null;
-
-const mockPrisma = {
-  user: {
-    findFirst: mock(() => Promise.resolve(null as MockUser)),
-    create: mock(() => Promise.resolve(mockUser)),
-  },
-};
-
-mock.module("@/api/lib/prisma", () => ({
-  default: mockPrisma,
-}));
-
+import { beforeEach, describe, expect, test } from "bun:test";
 import {
-  createUser,
-  getUserByEmail,
-  hashPassword,
-  verifyPassword,
-} from "@/api/auth/auth.service";
+  mockCreate,
+  mockFindFirst,
+  mockUser,
+  resetPrismaMocks,
+  setupPrismaMock,
+} from "@/tests/utils/prisma-mock";
+
+setupPrismaMock();
+
+const { getUserByEmail, createUser, hashPassword, verifyPassword } =
+  await import("@/api/auth/auth.service");
 
 describe("auth.service", () => {
   beforeEach(() => {
-    mockPrisma.user.findFirst.mockReset();
-    mockPrisma.user.create.mockReset();
+    resetPrismaMocks();
   });
 
   describe("getUserByEmail", () => {
     test("returns user when found", async () => {
-      mockPrisma.user.findFirst.mockResolvedValueOnce(mockUser);
+      mockFindFirst.mockResolvedValueOnce(mockUser);
 
       const result = await getUserByEmail("test@example.com");
 
       expect(result).toEqual(mockUser);
-      expect(mockPrisma.user.findFirst).toHaveBeenCalledTimes(1);
+      expect(mockFindFirst).toHaveBeenCalledTimes(1);
     });
 
     test("returns null when user not found", async () => {
-      mockPrisma.user.findFirst.mockResolvedValueOnce(null);
+      mockFindFirst.mockResolvedValueOnce(null);
 
       const result = await getUserByEmail("nonexistent@example.com");
 
@@ -54,11 +36,11 @@ describe("auth.service", () => {
     });
 
     test("trims and searches case-insensitively", async () => {
-      mockPrisma.user.findFirst.mockResolvedValueOnce(mockUser);
+      mockFindFirst.mockResolvedValueOnce(mockUser);
 
       await getUserByEmail("  TEST@EXAMPLE.COM  ");
 
-      expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
+      expect(mockFindFirst).toHaveBeenCalledWith({
         where: { email: { equals: "TEST@EXAMPLE.COM", mode: "insensitive" } },
         select: {
           id: true,
@@ -73,12 +55,12 @@ describe("auth.service", () => {
   describe("createUser", () => {
     test("creates user with trimmed lowercase email", async () => {
       const createdUser = { ...mockUser, email: "new@example.com" };
-      mockPrisma.user.create.mockResolvedValueOnce(createdUser);
+      mockCreate.mockResolvedValueOnce(createdUser);
 
       const result = await createUser("  NEW@EXAMPLE.COM  ", "hashedPassword");
 
       expect(result).toEqual(createdUser);
-      expect(mockPrisma.user.create).toHaveBeenCalledWith({
+      expect(mockCreate).toHaveBeenCalledWith({
         data: {
           email: "new@example.com",
           passwordHash: "hashedPassword",
@@ -87,7 +69,7 @@ describe("auth.service", () => {
     });
 
     test("returns created user with all fields", async () => {
-      mockPrisma.user.create.mockResolvedValueOnce(mockUser);
+      mockCreate.mockResolvedValueOnce(mockUser);
 
       const result = await createUser("test@example.com", "hashedPassword");
 

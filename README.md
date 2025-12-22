@@ -136,6 +136,9 @@ Then, access the app at `http://localhost:3000`.
 - [ ] WebSocket support for real-time features
 - [ ] Dark mode and theming system
 - [ ] Database seeding for development
+- [ ] Improved deployment setup in Dockerfile, following recommendations from ElysiaJS and Bun's docs.
+  - [ ] Use build command
+  - [ ] Multi-core support
 
 ## License
 
