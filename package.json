@@ -22,7 +22,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "i18n:extract": "i18next 'src/client/**/*.{ts,tsx}' --config i18next-parser.config.cjs",
-    "check": "bun run lint && bun run build-check && bun run test && bun run i18n:extract",
+    "check": "bun run lint && bun run build-check && bun run i18n:extract && bun run test",
     "prepare": "husky"
   },
   "dependencies": {
