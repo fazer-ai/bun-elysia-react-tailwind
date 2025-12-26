@@ -146,6 +146,7 @@ Then, access the app at `http://localhost:3000`.
 - [ ] Components
   - [ ] ProtectedRoute
 - [ ] Lucide Icons
+- [ ] i18n backend
 
 ## License
 
