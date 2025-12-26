@@ -6,4 +6,5 @@
 - Always update localization keys when adding or modifying user-facing text.
 - Always consider UX for backend requests: loading states, debouncing, error handling, and user feedback.
 - Always run `bun check` after applying all code changes to ensure code quality and correctness.
+- Never add keys manually to localization files. Always use `bun i18n:extract` to extract and add new keys.
 - Use magic comments like `// t('translation.key', 'Translation')` to indicate localization keys inside static objects that do not have access to `t` function.
