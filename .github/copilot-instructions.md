@@ -8,3 +8,5 @@
 - Always run `bun check` after applying all code changes to ensure code quality and correctness.
 - Never add keys manually to localization files. Always use `bun i18n:extract` to extract and add new keys.
 - Use magic comments like `// t('translation.key', 'Translation')` to indicate localization keys inside static objects that do not have access to `t` function.
+- Always use the `cn` utility when appropriate for component classNames.
+- For conditional classNames, always use the object syntax `cn("base", { "active": isActive })` instead of ternary operators.
