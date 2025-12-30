@@ -147,6 +147,7 @@ Then, access the app at `http://localhost:3000`.
   - [ ] ProtectedRoute
 - [ ] Lucide Icons
 - [ ] i18n backend
+- [ ] CD flags on GitHub
 
 ## License
 
