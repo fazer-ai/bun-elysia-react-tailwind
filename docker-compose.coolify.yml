@@ -23,12 +23,7 @@ services:
     command:
       - sh
       - '-c'
-      - 'bun start'
-    post_start:
-      - command:
-          - sh
-          - '-c'
-          - 'bun prisma migrate deploy'
+      - 'bun prisma migrate deploy && exec bun src/index.ts'
     restart: always
     healthcheck:
       test:
