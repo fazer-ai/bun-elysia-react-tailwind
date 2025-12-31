@@ -5,7 +5,19 @@ import { name } from "@/../package.json";
 
 const ROOT = process.cwd();
 const REPO_NAME = path.basename(ROOT);
-const SEARCH = name;
+
+const SUBSTITUTIONS: [string, string][] = [
+  // Package name (kebab-case)
+  [name, REPO_NAME],
+  // Environment variable prefix (SCREAMING_SNAKE_CASE)
+  [
+    `SERVICE_URL_${name.toUpperCase().replace(/-/g, "_")}`,
+    `SERVICE_URL_${REPO_NAME.toUpperCase().replace(/-/g, "_")}`,
+  ],
+  // Database name / identifiers (snake_case)
+  [name.replace(/-/g, "_"), REPO_NAME.replace(/-/g, "_")],
+];
+
 const IGNORES = new Set([
   "node_modules",
   ".git",
@@ -46,15 +58,23 @@ async function main() {
   for (const file of files) {
     const rel = path.relative(ROOT, file);
     try {
-      const content = await fs.readFile(file, "utf8");
-      if (content.includes(SEARCH)) {
-        const replaced = content.split(SEARCH).join(REPO_NAME);
-        await fs.writeFile(file, replaced, "utf8");
+      let content = await fs.readFile(file, "utf8");
+      let modified = false;
+
+      for (const [search, replace] of SUBSTITUTIONS) {
+        if (content.includes(search)) {
+          const occurrences = (content.match(new RegExp(search, "g")) || [])
+            .length;
+          content = content.split(search).join(replace);
+          replaceCount += occurrences;
+          modified = true;
+        }
+      }
+
+      if (modified) {
+        await fs.writeFile(file, content, "utf8");
         console.log(`Updated: ${rel}`);
         fileCount++;
-        const occurrences = (content.match(new RegExp(SEARCH, "g")) || [])
-          .length;
-        replaceCount += occurrences;
       }
     } catch {
       // skip binary/unreadable files
