@@ -30,7 +30,7 @@ const app = new Elysia()
   .use(staticRateLimitMiddleware())
   .use(
     await staticPlugin({
-      assets: "public",
+      assets: config.env === "production" ? "dist" : "public",
       prefix: "/",
       alwaysStatic: true,
     }),

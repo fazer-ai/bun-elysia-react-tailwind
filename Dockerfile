@@ -1,35 +1,64 @@
-FROM oven/bun:1-alpine AS base
-WORKDIR /usr/src/app
+FROM oven/bun:1-alpine AS build
 
-FROM base AS install
-RUN mkdir -p /temp/dev /temp/prod
-COPY package.json bun.lock /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
-COPY package.json bun.lock /temp/prod/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
+WORKDIR /app
 
-FROM base AS prerelease
-COPY --from=install /temp/dev/node_modules node_modules
+# Cache packages installation
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+
+# Copy source files
 COPY . .
 
 # NOTE: Set a dummy DATABASE_URL for Prisma code generation
 ENV DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
+ENV NODE_ENV=production
+
+# Generate Prisma client
 RUN bun prisma generate
 
-FROM base AS release
-COPY --from=install /temp/prod/node_modules node_modules
-COPY --from=prerelease /usr/src/app/src/ src
-COPY --from=prerelease /usr/src/app/tsconfig.json tsconfig.json
-COPY --from=prerelease /usr/src/app/package.json package.json
-COPY --from=prerelease /usr/src/app/scripts scripts
-COPY --from=prerelease /usr/src/app/prisma prisma
-COPY --from=prerelease /usr/src/app/prisma.config.ts prisma.config.ts
-COPY --from=prerelease /usr/src/app/public public
-COPY --from=prerelease /usr/src/app/generated generated
+# Build frontend assets (Tailwind CSS + React)
+RUN bun run build
 
-RUN mkdir -p /usr/src/app/logs && chown -R bun:bun /usr/src/app/logs
+# Compile backend to binary (target musl for Alpine)
+RUN bun build \
+    --compile \
+    --minify-whitespace \
+    --minify-syntax \
+    --target bun-linux-x64-musl \
+    --outfile server \
+    src/index.ts
+
+# Install production dependencies only
+FROM oven/bun:1-alpine AS prod-deps
+
+WORKDIR /app
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile --production --ignore-scripts
+
+FROM oven/bun:1-alpine AS release
+
+WORKDIR /app
+
+# Copy compiled binary
+COPY --from=build /app/server server
+
+# Copy production node_modules for Prisma runtime dependencies
+COPY --from=prod-deps /app/node_modules node_modules
+COPY --from=build /app/generated generated
+
+# Copy Prisma schema and migrations for runtime
+COPY --from=build /app/prisma prisma
+COPY --from=build /app/prisma.config.ts prisma.config.ts
+
+# Copy built frontend assets
+COPY --from=build /app/dist dist
+COPY --from=build /app/public/logo.svg dist/logo.svg
+COPY --from=build /app/public/tutorial dist/tutorial
+
+# Copy scripts for database setup
+COPY --from=build /app/scripts scripts
+COPY --from=build /app/package.json package.json
+
+RUN mkdir -p /app/logs && chown -R bun:bun /app/logs
 
 EXPOSE 3000
-
-# TODO: Improved build following ElysiaJS recommendations
-# https://elysiajs.com/patterns/deploy

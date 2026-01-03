@@ -164,7 +164,7 @@ describe("authPlugin", () => {
 
       expect(response.status).toBe(401);
       const data = await response.json();
-      expect(data.error).toBe("unauthorized");
+      expect(data.error).toBe("Unauthorized");
     });
 
     test("rejects requests with invalid token with 401", async () => {
@@ -196,7 +196,7 @@ describe("authPlugin", () => {
 
       expect(response.status).toBe(401);
       const data = await response.json();
-      expect(data.error).toBe("unauthorized");
+      expect(data.error).toBe("Unauthorized");
     });
 
     test("rejects requests with invalid token with 401", async () => {

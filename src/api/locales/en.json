@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "emailInUse": "Email already in use",
+    "forbidden": "Forbidden",
+    "invalidCredentials": "Invalid email or password",
+    "rateLimitExceeded": "Rate limit exceeded. Please try again later.",
+    "unauthorized": "Unauthorized"
+  }
+}

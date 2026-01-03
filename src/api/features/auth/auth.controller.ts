@@ -6,6 +6,7 @@ import {
   verifyPassword,
 } from "@/api/features/auth/auth.service";
 import { authPlugin } from "@/api/lib/auth";
+import { translate } from "@/api/lib/i18n";
 
 export const authController = new Elysia({ prefix: "/auth" })
   .use(authPlugin)
@@ -17,7 +18,9 @@ export const authController = new Elysia({ prefix: "/auth" })
       const existingUser = await getUserByEmail(email);
       if (existingUser) {
         set.status = 400;
-        return { error: "Email already in use" };
+        return {
+          error: translate("errors.emailInUse", "Email already in use"),
+        };
       }
 
       const passwordHash = await hashPassword(password);
@@ -48,13 +51,23 @@ export const authController = new Elysia({ prefix: "/auth" })
       const user = await getUserByEmail(email);
       if (!user) {
         set.status = 401;
-        return { error: "Invalid email or password" };
+        return {
+          error: translate(
+            "errors.invalidCredentials",
+            "Invalid email or password",
+          ),
+        };
       }
 
       const isValidPassword = await verifyPassword(password, user.passwordHash);
       if (!isValidPassword) {
         set.status = 401;
-        return { error: "Invalid email or password" };
+        return {
+          error: translate(
+            "errors.invalidCredentials",
+            "Invalid email or password",
+          ),
+        };
       }
 
       await setAuthCookie(user);
@@ -78,7 +91,7 @@ export const authController = new Elysia({ prefix: "/auth" })
     const user = await getAuthUser();
     if (!user) {
       set.status = 401;
-      return { error: "unauthorized" };
+      return { error: translate("errors.unauthorized", "Unauthorized") };
     }
 
     return {

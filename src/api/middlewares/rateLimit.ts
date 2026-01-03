@@ -1,4 +1,5 @@
 import { rateLimit } from "elysia-rate-limit";
+import { translate } from "@/api/lib/i18n";
 
 const STATIC_EXTENSIONS =
   /\.(js|css|html|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json)$/i;
@@ -20,7 +21,10 @@ export const rateLimitMiddleware = () =>
   rateLimit({
     duration: 60000, // 1 minute
     max: 100, // 100 requests per minute
-    errorResponse: "Rate limit exceeded. Please try again later.",
+    errorResponse: translate(
+      "errors.rateLimitExceeded",
+      "Rate limit exceeded. Please try again later.",
+    ),
     skip: (request) => isStaticRequest(request),
   });
 
@@ -28,13 +32,19 @@ export const strictRateLimitMiddleware = () =>
   rateLimit({
     duration: 60000, // 1 minute
     max: 10, // 10 requests per minute
-    errorResponse: "Rate limit exceeded. Please try again later.",
+    errorResponse: translate(
+      "errors.rateLimitExceeded",
+      "Rate limit exceeded. Please try again later.",
+    ),
   });
 
 export const staticRateLimitMiddleware = () =>
   rateLimit({
     duration: 60000, // 1 minute
     max: 1000, // 1000 requests per minute
-    errorResponse: "Rate limit exceeded. Please try again later.",
+    errorResponse: translate(
+      "errors.rateLimitExceeded",
+      "Rate limit exceeded. Please try again later.",
+    ),
     skip: (request) => !isStaticRequest(request),
   });

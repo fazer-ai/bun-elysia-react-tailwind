@@ -146,7 +146,7 @@ describe("authController", () => {
       const response = await api.auth.me.get();
 
       expect(response.status).toBe(401);
-      expect(response.error?.value).toHaveProperty("error", "unauthorized");
+      expect(response.error?.value).toHaveProperty("error", "Unauthorized");
     });
   });
 

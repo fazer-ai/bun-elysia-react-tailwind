@@ -1,6 +1,7 @@
 import { jwt } from "@elysiajs/jwt";
 import { Elysia } from "elysia";
 import type { UserRole } from "@/../generated/prisma/client";
+import { translate } from "@/api/lib/i18n";
 import logger from "@/api/lib/logger";
 import prisma from "@/api/lib/prisma";
 import config from "@/config";
@@ -82,7 +83,7 @@ export const authPlugin = new Elysia({ name: "auth" })
           const user = await getAuthUser();
           if (!user) {
             set.status = 401;
-            return { error: "unauthorized" };
+            return { error: translate("errors.unauthorized", "Unauthorized") };
           }
         },
       };
@@ -95,11 +96,11 @@ export const authPlugin = new Elysia({ name: "auth" })
           const user = await getAuthUser();
           if (!user) {
             set.status = 401;
-            return { error: "unauthorized" };
+            return { error: translate("errors.unauthorized", "Unauthorized") };
           }
           if (user.role !== "ADMIN") {
             set.status = 403;
-            return { error: "forbidden" };
+            return { error: translate("errors.forbidden", "Forbidden") };
           }
         },
       };

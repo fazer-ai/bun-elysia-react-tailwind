@@ -1,7 +1,7 @@
 module.exports = {
   locales: ["en", "pt-BR"],
-  output: "src/client/locales/$LOCALE.json",
-  input: ["src/client/**/*.{ts,tsx}"],
+  output: "src/api/locales/$LOCALE.json",
+  input: ["src/api/**/*.ts"],
   defaultNamespace: "translation",
   keySeparator: ".",
   namespaceSeparator: ":",
@@ -10,8 +10,12 @@ module.exports = {
   defaultValue: (_locale, _namespace, _key, value) => value || "",
   keepRemoved: false,
   lexers: {
-    ts: ["JavascriptLexer"],
-    tsx: ["JsxLexer"],
+    ts: [
+      {
+        lexer: "JavascriptLexer",
+        functions: ["translate"],
+      },
+    ],
   },
   lineEnding: "lf",
   sort: true,

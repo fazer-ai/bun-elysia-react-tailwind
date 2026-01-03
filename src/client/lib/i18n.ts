@@ -3,7 +3,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 
 import en from "@/client/locales/en.json";
-import pt from "@/client/locales/pt.json";
+import ptBR from "@/client/locales/pt-BR.json";
 
 i18n
   .use(LanguageDetector)
@@ -11,7 +11,7 @@ i18n
   .init({
     resources: {
       en: { translation: en },
-      pt: { translation: pt },
+      "pt-BR": { translation: ptBR },
     },
     fallbackLng: "en",
     interpolation: {
