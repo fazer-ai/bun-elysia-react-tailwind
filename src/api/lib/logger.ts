@@ -50,27 +50,39 @@ export function deepSanitizeObject(
 let logger = pino({
   level: "debug",
   transport: {
-    targets: [
-      {
-        level: config.logLevel,
-        target: "pino-pretty",
-        options: {
-          colorize: true,
-          translateTime: "SYS:standard",
-          mkdir: true,
-        } as PrettyOptions,
-      },
-      {
-        level: config.logLevel,
-        target: "pino-roll",
-        options: {
-          file: path.join("logs", "log"),
-          size: "50m",
-          limit: { count: 10 },
-          mkdir: true,
-        },
-      },
-    ],
+    targets:
+      config.env === "production"
+        ? [
+            {
+              level: config.logLevel,
+              target: "pino-pretty",
+              options: {
+                colorize: false,
+                translateTime: "SYS:standard",
+              } as PrettyOptions,
+            },
+          ]
+        : [
+            {
+              level: config.logLevel,
+              target: "pino-pretty",
+              options: {
+                colorize: true,
+                translateTime: "SYS:standard",
+                mkdir: true,
+              } as PrettyOptions,
+            },
+            {
+              level: config.logLevel,
+              target: "pino-roll",
+              options: {
+                file: path.join("logs", "log"),
+                size: "50m",
+                limit: { count: 10 },
+                mkdir: true,
+              },
+            },
+          ],
   },
 });
 
