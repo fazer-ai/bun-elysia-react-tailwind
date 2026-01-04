@@ -18,4 +18,6 @@ export function translate(key: string, defaultValue?: string): string {
   return i18n.t(key, { defaultValue: defaultValue ?? key });
 }
 
+// TODO: Extract locale from request headers and set i18n language accordingly
+
 export default i18n;

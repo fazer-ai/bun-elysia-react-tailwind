@@ -53,7 +53,6 @@ COPY --from=build /app/prisma.config.ts prisma.config.ts
 # Copy built frontend assets
 COPY --from=build /app/dist dist
 COPY --from=build /app/public/logo.svg dist/logo.svg
-COPY --from=build /app/public/tutorial dist/tutorial
 
 # Copy scripts for database setup
 COPY --from=build /app/scripts scripts
