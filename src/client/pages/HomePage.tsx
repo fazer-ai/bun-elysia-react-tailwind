@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router";
 import { Button, Card } from "@/client/components";
 import { useAuth } from "@/client/contexts/AuthContext";
-import logo from "@/public/logo.svg";
+import logo from "@/public/assets/logo.svg";
 
 export function HomePage() {
   const { t } = useTranslation();
