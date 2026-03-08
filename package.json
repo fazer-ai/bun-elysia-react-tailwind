@@ -6,7 +6,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fazer-ai/fazer-ai-hub.git"
+    "url": "https://github.com/fazer-ai/bun-elysia-react-tailwind.git"
   },
   "scripts": {
     "dev": "bun --hot src/index.ts",
