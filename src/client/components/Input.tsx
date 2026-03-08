@@ -58,7 +58,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             aria-invalid={hasError || undefined}
             aria-describedby={hasDescription ? descriptionId : undefined}
             className={cn(
-              "w-full bg-bg-tertiary border border-border rounded-lg px-4 py-2 text-text-primary placeholder-text-placeholder focus:outline-none focus:border-border-focus disabled:opacity-60",
+              "w-full rounded-lg border border-border bg-bg-tertiary px-4 py-2 text-text-primary placeholder-text-placeholder focus:border-border-focus focus:outline-none disabled:opacity-60",
               { "border-error": hasError, "pr-10": !!showPasswordToggle },
               className,
             )}
@@ -68,7 +68,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary cursor-pointer"
+              className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-text-muted hover:text-text-primary"
               tabIndex={-1}
               aria-label={
                 showPassword
@@ -77,22 +77,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               }
             >
               {showPassword ? (
-                <EyeOff className="w-4 h-4" />
+                <EyeOff className="h-4 w-4" />
               ) : (
-                <Eye className="w-4 h-4" />
+                <Eye className="h-4 w-4" />
               )}
             </button>
           )}
         </div>
         {errorMessage && (
-          <span id={descriptionId} className="block text-xs text-error mt-1">
+          <span id={descriptionId} className="mt-1 block text-error text-xs">
             {errorMessage}
           </span>
         )}
         {helperText && !errorMessage && (
           <span
             id={descriptionId}
-            className="block text-xs text-text-muted mt-1"
+            className="mt-1 block text-text-muted text-xs"
           >
             {helperText}
           </span>

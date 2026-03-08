@@ -61,13 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-bg-primary">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-bg-primary">
         <img
           src={getAssetUrl("/assets/logo.png")}
           alt="Logo"
           className="h-10"
         />
-        <Loader2 className="w-6 h-6 animate-spin text-text-secondary" />
+        <Loader2 className="h-6 w-6 animate-spin text-text-secondary" />
       </div>
     );
   }

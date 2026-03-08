@@ -37,7 +37,7 @@ export function Tooltip({ content, children }: TooltipProps) {
       >
         {children ?? (
           <span
-            className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-border text-text-muted text-[10px] font-medium cursor-help"
+            className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-border font-medium text-[10px] text-text-muted"
             role="img"
             aria-label={content}
           >
@@ -49,7 +49,7 @@ export function Tooltip({ content, children }: TooltipProps) {
         createPortal(
           <span
             role="tooltip"
-            className="pointer-events-none fixed -translate-x-1/2 -translate-y-full -mt-1.5 px-2.5 py-1.5 rounded-md bg-bg-primary border border-border text-xs text-text-primary whitespace-nowrap z-100"
+            className="pointer-events-none fixed z-100 -mt-1.5 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md border border-border bg-bg-primary px-2.5 py-1.5 text-text-primary text-xs"
             style={{ top: position.top, left: position.left }}
           >
             {content}

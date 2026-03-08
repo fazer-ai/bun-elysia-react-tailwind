@@ -32,31 +32,31 @@ export function LanguagePicker() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-tertiary hover:bg-bg-hover border border-border rounded-lg transition-colors cursor-pointer"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-bg-tertiary px-3 py-1.5 font-medium text-sm text-text-secondary transition-colors hover:bg-bg-hover hover:text-text-primary"
         aria-label="Change language"
       >
         <span className="text-base">{currentLang.flag}</span>
         <span className="hidden sm:inline">{currentLang.name}</span>
         <ChevronDown
-          className={cn("w-4 h-4 transition-transform", {
+          className={cn("h-4 w-4 transition-transform", {
             "rotate-180": isOpen,
           })}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 min-w-40 bg-bg-secondary border border-border rounded-lg shadow-lg overflow-hidden z-50">
+        <div className="absolute top-full right-0 z-50 mt-1 min-w-40 overflow-hidden rounded-lg border border-border bg-bg-secondary shadow-lg">
           {LANGUAGES.map((lang) => (
             <button
               key={lang.code}
               type="button"
               onClick={() => handleSelect(lang.code)}
               className={cn(
-                "w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors cursor-pointer",
+                "flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-sm transition-colors",
                 {
                   "bg-bg-hover text-text-primary":
                     lang.code === currentLang.code,
-                  "hover:bg-bg-tertiary text-text-secondary":
+                  "text-text-secondary hover:bg-bg-tertiary":
                     lang.code !== currentLang.code,
                 },
               )}

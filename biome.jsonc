@@ -19,7 +19,10 @@
     "includes": ["src/**/*.{ts,tsx}", "scripts/**/*.ts", "tests/**/*.{ts,tsx}"],
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "nursery": {
+        "useSortedClasses": "on"
+      }
     }
   },
   "javascript": {

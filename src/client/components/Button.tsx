@@ -38,7 +38,7 @@ export function Button({
       type="button"
       disabled={disabled || loading}
       className={cn(
-        "inline-flex items-center justify-center shrink-0 rounded-lg font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default",
+        "inline-flex shrink-0 cursor-pointer items-center justify-center rounded-lg font-medium transition-colors disabled:cursor-default disabled:opacity-50",
         variantStyles[variant],
         sizeStyles[size],
         className,
@@ -48,7 +48,7 @@ export function Button({
       {loading ? (
         <span className="inline-flex items-center gap-2">
           <svg
-            className="animate-spin h-4 w-4"
+            className="h-4 w-4 animate-spin"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

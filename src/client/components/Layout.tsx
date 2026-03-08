@@ -23,8 +23,8 @@ export function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="h-screen bg-bg-primary flex flex-col overflow-hidden">
-      <header className="bg-bg-secondary border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
+    <div className="flex h-screen flex-col overflow-hidden bg-bg-primary">
+      <header className="flex shrink-0 items-center justify-between border-border border-b bg-bg-secondary px-6 py-4">
         <Link to="/" className="flex items-center gap-3">
           <img
             src={getAssetUrl("/assets/logo.png")}
@@ -38,9 +38,9 @@ export function Layout({ children }: LayoutProps) {
             (isAdminPage ? (
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-tertiary hover:bg-bg-hover border border-border rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-tertiary px-3 py-1.5 font-medium text-sm text-text-secondary transition-colors hover:bg-bg-hover hover:text-text-primary"
               >
-                <LayoutDashboard className="w-4 h-4" />
+                <LayoutDashboard className="h-4 w-4" />
                 <span className="hidden sm:inline">
                   {t("nav.home", "Home")}
                 </span>
@@ -48,9 +48,9 @@ export function Layout({ children }: LayoutProps) {
             ) : (
               <Link
                 to="/admin"
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-tertiary hover:bg-bg-hover border border-border rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-tertiary px-3 py-1.5 font-medium text-sm text-text-secondary transition-colors hover:bg-bg-hover hover:text-text-primary"
               >
-                <Shield className="w-4 h-4" />
+                <Shield className="h-4 w-4" />
                 <span className="hidden sm:inline">
                   {t("nav.admin", "Admin")}
                 </span>
@@ -60,16 +60,16 @@ export function Layout({ children }: LayoutProps) {
           <LanguagePicker />
 
           <div className="flex items-center gap-3">
-            <span className="text-sm text-text-secondary hidden sm:inline">
+            <span className="hidden text-sm text-text-secondary sm:inline">
               {user?.email}
             </span>
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-tertiary hover:bg-bg-hover border border-border rounded-lg transition-colors cursor-pointer"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-bg-tertiary px-3 py-1.5 font-medium text-sm text-text-secondary transition-colors hover:bg-bg-hover hover:text-text-primary"
               aria-label={t("auth.logout", "Logout")}
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">
                 {t("auth.logout", "Logout")}
               </span>

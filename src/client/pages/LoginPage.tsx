@@ -47,18 +47,18 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-bg-primary">
+    <div className="flex min-h-screen items-center justify-center bg-bg-primary p-4">
       <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-8 text-text-primary">
+        <h1 className="mb-8 text-center font-bold text-3xl text-text-primary">
           {t("auth.login", "Login")}
         </h1>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-bg-secondary p-8 rounded-2xl border border-border space-y-4"
+          className="space-y-4 rounded-2xl border border-border bg-bg-secondary p-8"
         >
           {error && (
-            <div className="bg-error-soft border border-error text-error px-4 py-2 rounded-lg text-sm">
+            <div className="rounded-lg border border-error bg-error-soft px-4 py-2 text-error text-sm">
               {error}
             </div>
           )}
@@ -66,7 +66,7 @@ export function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-text-primary text-sm font-medium mb-1"
+              className="mb-1 block font-medium text-sm text-text-primary"
             >
               {t("auth.email", "Email")}
             </label>
@@ -83,7 +83,7 @@ export function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-text-primary text-sm font-medium mb-1"
+              className="mb-1 block font-medium text-sm text-text-primary"
             >
               {t("auth.password", "Password")}
             </label>
@@ -106,11 +106,11 @@ export function LoginPage() {
           </Button>
         </form>
 
-        <p className="text-center mt-4 text-text-secondary">
+        <p className="mt-4 text-center text-text-secondary">
           {t("auth.noAccount", "Don't have an account?")}{" "}
           <Link
             to="/signup"
-            className="text-accent hover:underline font-medium"
+            className="font-medium text-accent hover:underline"
           >
             {t("auth.signup", "Sign Up")}
           </Link>

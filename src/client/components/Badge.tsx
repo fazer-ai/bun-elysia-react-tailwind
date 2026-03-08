@@ -22,7 +22,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "px-2 py-0.5 rounded text-xs font-medium",
+        "rounded px-2 py-0.5 font-medium text-xs",
         VARIANT_COLORS[variant],
         className,
       )}

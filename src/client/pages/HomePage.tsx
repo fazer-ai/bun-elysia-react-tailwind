@@ -8,12 +8,12 @@ export function HomePage() {
   const { user } = useAuth();
 
   return (
-    <div className="max-w-7xl mx-auto text-center">
-      <div className="flex justify-center items-center gap-8 mb-8">
+    <div className="mx-auto max-w-7xl text-center">
+      <div className="mb-8 flex items-center justify-center gap-8">
         <img
           src={getAssetUrl("/assets/logo.png")}
           alt="Logo"
-          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#3b82f6aa] scale-120"
+          className="h-24 scale-120 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#3b82f6aa]"
         />
       </div>
 
@@ -21,7 +21,7 @@ export function HomePage() {
         <p className="text-text-primary">
           {t("home.welcome", "Welcome, {{email}}!", { email: user?.email })}
         </p>
-        <p className="text-text-muted text-sm">
+        <p className="text-sm text-text-muted">
           {t("home.role", "Role: {{role}}", { role: user?.role })}
         </p>
       </Card>

@@ -42,10 +42,10 @@ export function useToast() {
 }
 
 const icons: Record<ToastType, ReactNode> = {
-  success: <CheckCircle className="w-5 h-5" />,
-  error: <XCircle className="w-5 h-5" />,
-  warning: <AlertCircle className="w-5 h-5" />,
-  info: <Info className="w-5 h-5" />,
+  success: <CheckCircle className="h-5 w-5" />,
+  error: <XCircle className="h-5 w-5" />,
+  warning: <AlertCircle className="h-5 w-5" />,
+  info: <Info className="h-5 w-5" />,
 };
 
 const styles: Record<ToastType, string> = {
@@ -67,7 +67,7 @@ function ToastItem({
   return (
     <div
       className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg",
+        "flex items-center gap-3 rounded-lg border px-4 py-3 shadow-lg",
         styles[toast.type],
       )}
       style={{
@@ -98,10 +98,10 @@ function ToastItem({
       <button
         type="button"
         onClick={() => onRemove(toast.id)}
-        className="p-1 hover:opacity-70 transition-opacity cursor-pointer"
+        className="cursor-pointer p-1 transition-opacity hover:opacity-70"
         aria-label="Dismiss"
       >
-        <X className="w-4 h-4" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   );
@@ -169,7 +169,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
+      <div className="fixed right-4 bottom-4 z-50 flex flex-col gap-2">
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
         ))}
