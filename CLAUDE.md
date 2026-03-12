@@ -38,6 +38,11 @@ This is a full-stack TypeScript template using **Bun + Elysia + React 19 + Tailw
 - `scripts/` — `setup.ts` (template init), `set-admin.ts`
 - `build.ts` — Custom build script with Tailwind plugin
 
+## Frontend architecture
+
+- `ProtectedRoute` wraps children in `<Layout>` — page components must NOT wrap themselves in `<Layout>`, they render content only
+- Only `ProtectedRoute` (in `src/client/components/ProtectedRoute.tsx`) should render `<Layout>` — it is the single source of the app shell (header, nav, main content area)
+
 ## Code style
 
 - Biome for linting and formatting (2-space indent, LF line endings)
