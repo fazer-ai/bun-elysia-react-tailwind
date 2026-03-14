@@ -1,24 +1,19 @@
 # CDN Setup with Cloudflare R2
 
-This guide covers setting up a CDN using Cloudflare R2 storage and a Cloudflare Worker to serve your frontend assets (JS, CSS, images) from a global edge network.
+This guide covers setting up a CDN using Cloudflare R2 storage to serve your frontend assets (JS, CSS, images) from a global edge network. There are two approaches:
 
-## Architecture
-
-```
-Build → Upload to R2 → Worker serves assets → Browser
-                           ↓
-                     Custom domain (e.g. cdn.myapp.com)
-```
-
-- **R2 Bucket**: Stores all built assets (hashed JS/CSS, static images, fonts)
-- **Cloudflare Worker**: Serves assets from R2 with proper caching headers, CORS, and content types
-- **Build process**: Rewrites asset URLs to point to the CDN via `BUN_PUBLIC_CDN_URL`
+| | R2 Custom Domain | Cloudflare Worker |
+|---|---|---|
+| **Complexity** | Simpler — no code to deploy | Requires deploying a worker |
+| **CORS** | Configured via R2 bucket settings | Custom logic with configurable origins |
+| **Cache control** | R2 defaults (requires Cloudflare rules to customize) | Per-file rules (immutable for hashed, 24h for others) |
+| **Best for** | Simple setups, fewer moving parts | Fine-grained control over headers and caching |
 
 ## Prerequisites
 
 - A [Cloudflare account](https://dash.cloudflare.com/sign-up)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) installed (`bun add -g wrangler`)
-- A custom domain configured in Cloudflare (optional but recommended)
+- A custom domain on a Cloudflare-managed zone (recommended)
 
 ## Step 1: Create the R2 Bucket
 
@@ -28,45 +23,72 @@ wrangler r2 bucket create my-app-assets
 
 Replace `my-app-assets` with your desired bucket name.
 
-## Step 2: Configure the Worker
+## Step 2: Choose a Serving Method
 
-Edit `workers/cdn/wrangler.toml`:
+### Option A: R2 Custom Domain (simpler)
 
-```toml
-name = "my-app-cdn"
-main = "src/index.ts"
-compatibility_date = "2025-01-01"
+Serve assets directly from R2 using a custom domain. No worker needed.
 
-[vars]
-ALLOWED_ORIGINS = "https://myapp.com,http://localhost:3000"
+1. In **Cloudflare Dashboard → R2 → your bucket → Settings → Custom Domains**, add your CDN domain (e.g. `cdn.myapp.com`).
+   - The domain must be on a Cloudflare-managed zone.
 
-[[r2_buckets]]
-binding = "ASSETS"
-bucket_name = "my-app-assets"
-```
+2. In **R2 → your bucket → Settings → CORS Policy**, add:
 
-Update:
+   ```json
+   [
+     {
+       "AllowedOrigins": ["*"],
+       "AllowedMethods": ["GET", "HEAD"],
+       "AllowedHeaders": ["*"],
+       "ExposeHeaders": ["Content-Length", "Content-Type", "ETag"],
+       "MaxAgeSeconds": 86400
+     }
+   ]
+   ```
 
-- `name` — your worker name
-- `ALLOWED_ORIGINS` — comma-separated list of allowed origins for CORS
-- `bucket_name` — must match the bucket created in Step 1
+3. In **GitHub repo → Settings → Variables → Actions**, set `CDN_WORKER_DISABLED` to `true` to skip the worker deploy step in CI.
 
-## Step 3: Deploy the Worker
+> **Caveat**: Cache control headers use R2 defaults — you cannot customize per-file cache rules without adding a Transform Rule or Cache Rule in Cloudflare.
 
-```bash
-cd workers/cdn
-bunx wrangler deploy
-```
+### Option B: Cloudflare Worker (more control)
 
-The worker will be available at `https://my-app-cdn.<your-account>.workers.dev`.
+Serve assets through a Cloudflare Worker that proxies R2. Allows custom CORS, per-file cache control, and MIME type handling.
 
-### Custom Domain (recommended)
+1. Edit `workers/cdn/wrangler.toml`:
 
-1. Go to **Cloudflare Dashboard → Workers & Pages → your worker → Settings → Domains & Routes**
-2. Add a custom domain (e.g. `cdn.myapp.com`)
-3. Cloudflare will automatically configure the DNS
+   ```toml
+   name = "my-app-cdn"
+   main = "src/index.ts"
+   compatibility_date = "2025-01-01"
 
-## Step 4: Set Environment Variables
+   [vars]
+   ALLOWED_ORIGINS = "https://myapp.com,http://localhost:3000"
+
+   [[r2_buckets]]
+   binding = "ASSETS"
+   bucket_name = "my-app-assets"
+   ```
+
+   Update:
+   - `name` — your worker name
+   - `ALLOWED_ORIGINS` — comma-separated list of allowed origins for CORS
+   - `bucket_name` — must match the bucket created in Step 1
+
+2. Deploy the worker:
+
+   ```bash
+   cd workers/cdn
+   bunx wrangler deploy
+   ```
+
+   The worker will be available at `https://my-app-cdn.<your-account>.workers.dev`.
+
+3. Add a custom domain (recommended):
+   - Go to **Cloudflare Dashboard → Workers & Pages → your worker → Settings → Domains & Routes**
+   - Add a custom domain (e.g. `cdn.myapp.com`)
+   - Cloudflare will automatically configure the DNS
+
+## Step 3: Set Environment Variables
 
 ### Local Development
 
@@ -88,7 +110,7 @@ docker build --build-arg BUN_PUBLIC_CDN_URL=https://cdn.myapp.com .
 
 For Coolify, set the `CDN_URL` environment variable in your service configuration.
 
-## Step 5: Upload Assets
+## Step 4: Upload Assets
 
 After building, upload the `dist/` directory to R2:
 
@@ -137,6 +159,7 @@ upload-assets:
         done
 
     - name: Deploy CDN Worker
+      if: vars.CDN_WORKER_DISABLED != 'true'
       run: bunx wrangler deploy
       working-directory: workers/cdn
       env:
@@ -144,13 +167,16 @@ upload-assets:
         CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 ```
 
-### Required GitHub Secrets
+> **Note**: If using Option A (R2 Custom Domain), set the `CDN_WORKER_DISABLED` Actions variable to `true` to skip the worker deploy step.
 
-| Secret                  | Description                                 |
-| ----------------------- | ------------------------------------------- |
-| `CLOUDFLARE_API_TOKEN`  | API token with Workers and R2 permissions   |
-| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID                  |
-| `BUN_PUBLIC_CDN_URL`    | Your CDN URL (e.g. `https://cdn.myapp.com`) |
+### Required GitHub Secrets / Variables
+
+| Name                     | Type     | Description                                 |
+| ------------------------ | -------- | ------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`   | Secret   | API token with Workers and R2 permissions   |
+| `CLOUDFLARE_ACCOUNT_ID`  | Secret   | Your Cloudflare account ID                  |
+| `BUN_PUBLIC_CDN_URL`     | Secret   | Your CDN URL (e.g. `https://cdn.myapp.com`) |
+| `CDN_WORKER_DISABLED`    | Variable | Set to `true` to skip worker deploy (Option A) |
 
 ### Creating the Cloudflare API Token
 
@@ -172,7 +198,11 @@ When `BUN_PUBLIC_CDN_URL` is set, the build process (`build.ts`) rewrites all as
 
 The `getAssetUrl()` utility in `src/client/lib/utils.ts` handles runtime asset URL resolution for static assets like logos.
 
-### Worker Behavior
+### Runtime — R2 Custom Domain (Option A)
+
+R2 serves files directly with its built-in HTTP handling. CORS is controlled by the bucket's CORS policy. Cache behavior uses Cloudflare defaults (customizable via Cache Rules or Transform Rules in the dashboard).
+
+### Runtime — Cloudflare Worker (Option B)
 
 The CDN worker (`workers/cdn/src/index.ts`):
 

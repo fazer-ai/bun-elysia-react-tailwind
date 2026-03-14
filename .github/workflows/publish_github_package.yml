@@ -53,6 +53,7 @@ jobs:
           echo "✅ All assets uploaded"
 
       - name: Deploy CDN Worker
+        if: vars.CDN_WORKER_DISABLED != 'true'
         run: bunx wrangler deploy
         working-directory: workers/cdn
         env:
