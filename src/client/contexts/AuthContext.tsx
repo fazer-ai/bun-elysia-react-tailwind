@@ -2,6 +2,7 @@ import { Loader2 } from "lucide-react";
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -29,22 +30,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const clearUser = useCallback(() => setUser(null), []);
+
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        const { data } = await api.api.auth.me.get();
-        if (data?.user) {
-          setUser(data.user);
-        }
-      } catch {
-        // NOTE: User not authenticated
-      } finally {
-        setLoading(false);
+      const { data, error } = await api.api.auth.me.get();
+      if (data?.user && !error) {
+        setUser(data.user);
       }
+      setLoading(false);
     };
 
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    window.addEventListener("auth:unauthorized", clearUser);
+    return () => window.removeEventListener("auth:unauthorized", clearUser);
+  }, [clearUser]);
 
   const login = (loggedInUser: User) => {
     setUser(loggedInUser);

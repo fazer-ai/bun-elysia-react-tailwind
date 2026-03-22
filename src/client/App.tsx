@@ -1,6 +1,6 @@
 import "@/public/index.css";
 import "@/client/lib/i18n";
-import { HashRouter, Route, Routes } from "react-router";
+import { HashRouter, Navigate, Route, Routes } from "react-router";
 import { ProtectedRoute, ToastProvider } from "@/client/components";
 import { AuthProvider } from "@/client/contexts/AuthContext";
 import { AdminPage } from "@/client/pages/AdminPage";
@@ -32,6 +32,7 @@ export function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </HashRouter>
       </AuthProvider>

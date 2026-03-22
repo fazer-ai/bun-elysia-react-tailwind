@@ -6,4 +6,9 @@ export const api = treaty<App>(window.location.origin, {
   headers: () => ({
     "Accept-Language": i18n.language,
   }),
+  onResponse: (response) => {
+    if (response.status === 401) {
+      window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+    }
+  },
 });
