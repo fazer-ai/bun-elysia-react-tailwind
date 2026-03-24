@@ -13,7 +13,7 @@ export function HomePage() {
         <img
           src={getAssetUrl("/assets/logo.png")}
           alt="Logo"
-          className="h-24 scale-120 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#3b82f6aa]"
+          className="h-24 scale-120 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#3ea6ffaa]"
         />
       </div>
 

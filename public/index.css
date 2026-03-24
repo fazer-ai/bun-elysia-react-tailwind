@@ -6,26 +6,31 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   /* Background colors */
-  --color-bg-primary: #000000;
-  --color-bg-secondary: #0a0a0a;
-  --color-bg-tertiary: #111111;
-  --color-bg-hover: #1a1a1a;
+  --color-bg-primary: #0f0f0f;
+  --color-bg-secondary: #161616;
+  --color-bg-tertiary: #1d1d1d;
+  --color-bg-hover: #262626;
 
   /* Text colors */
-  --color-text-primary: #ffffff;
+  --color-text-primary: #f1f1f1;
   --color-text-secondary: #a0a0a0;
   --color-text-muted: #666666;
   --color-text-placeholder: #444444;
 
   /* Accent colors */
-  --color-accent: #3b82f6;
-  --color-accent-hover: #2563eb;
-  --color-accent-soft: #3b82f6/15;
+  --color-accent: #3ea6ff;
+  --color-accent-hover: #6bbdff;
+  --color-accent-muted: #065fd4;
+  --color-accent-soft: #3ea6ff/15;
+
+  /* Purple alternative */
+  --color-purple: #9a4dff;
+  --color-purple-soft: #9a4dff/15;
 
   /* Border colors */
-  --color-border: #1a1a1a;
+  --color-border: #262626;
   --color-border-hover: #333333;
-  --color-border-focus: #3b82f6;
+  --color-border-focus: #3ea6ff;
 
   /* Status colors */
   --color-error: #dc2626;
@@ -34,11 +39,18 @@
   --color-success-soft: #22c55e/15;
   --color-warning: #eab308;
   --color-warning-soft: #eab308/15;
-  --color-info: #3b82f6;
-  --color-info-soft: #3b82f6/15;
+  --color-info: #3ea6ff;
+  --color-info-soft: #3ea6ff/15;
 
   /* Primary alias for accent */
-  --color-primary: #3b82f6;
+  --color-primary: #3ea6ff;
+
+  /* Badge backgrounds (Notion-style solid) */
+  --color-badge-primary: #263850;
+  --color-badge-secondary: #363636;
+  --color-badge-success: #1e3a2f;
+  --color-badge-warning: #3d3520;
+  --color-badge-info: #1e3044;
 }
 
 @font-face {

@@ -3,11 +3,11 @@ import { cn } from "@/client/lib/utils";
 type BadgeVariant = "primary" | "secondary" | "success" | "warning" | "info";
 
 const VARIANT_COLORS: Record<BadgeVariant, string> = {
-  primary: "bg-primary/20 text-primary",
-  secondary: "bg-bg-tertiary text-text-secondary",
-  success: "bg-success/20 text-success",
-  warning: "bg-warning/20 text-warning",
-  info: "bg-info/20 text-info",
+  primary: "bg-badge-primary text-text-primary",
+  secondary: "bg-badge-secondary text-text-primary",
+  success: "bg-badge-success text-text-primary",
+  warning: "bg-badge-warning text-text-primary",
+  info: "bg-badge-info text-text-primary",
 };
 
 export function Badge({

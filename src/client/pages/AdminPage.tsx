@@ -105,7 +105,7 @@ export function AdminPage() {
       {stats && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Card className="flex items-center gap-4">
-            <div className="rounded-lg bg-accent/10 p-3">
+            <div className="rounded-lg bg-bg-tertiary p-3">
               <Users className="h-6 w-6 text-accent" />
             </div>
             <div>
@@ -118,8 +118,8 @@ export function AdminPage() {
             </div>
           </Card>
           <Card className="flex items-center gap-4">
-            <div className="rounded-lg bg-amber-500/10 p-3">
-              <Shield className="h-6 w-6 text-amber-500" />
+            <div className="rounded-lg bg-bg-tertiary p-3">
+              <Shield className="h-6 w-6 text-purple" />
             </div>
             <div>
               <p className="font-bold text-2xl text-text-primary">

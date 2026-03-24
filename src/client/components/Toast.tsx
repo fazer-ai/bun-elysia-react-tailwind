@@ -49,10 +49,17 @@ const icons: Record<ToastType, ReactNode> = {
 };
 
 const styles: Record<ToastType, string> = {
-  success: "bg-green-900/90 text-green-100 border-green-700",
-  error: "bg-red-900/90 text-red-100 border-red-700",
-  warning: "bg-amber-900/90 text-amber-100 border-amber-700",
-  info: "bg-blue-900/90 text-blue-100 border-blue-700",
+  success: "bg-bg-tertiary/90 text-text-primary border-success",
+  error: "bg-bg-tertiary/90 text-text-primary border-error",
+  warning: "bg-bg-tertiary/90 text-text-primary border-warning",
+  info: "bg-bg-tertiary/90 text-text-primary border-accent",
+};
+
+const iconStyles: Record<ToastType, string> = {
+  success: "text-success",
+  error: "text-error",
+  warning: "text-warning",
+  info: "text-accent",
 };
 
 const ANIMATION_DURATION = 300;
@@ -93,7 +100,7 @@ function ToastItem({
           }
         `}
       </style>
-      {icons[toast.type]}
+      <span className={iconStyles[toast.type]}>{icons[toast.type]}</span>
       <span className="flex-1 text-sm">{toast.message}</span>
       <button
         type="button"
