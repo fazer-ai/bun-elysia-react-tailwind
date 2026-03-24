@@ -33,6 +33,14 @@ A modern full-stack TypeScript template combining Bun, Elysia, React 19, and Tai
 - Pre-configured English and Portuguese locales
 - i18next-parser for extracting translation keys
 
+### 🎨 Theming
+
+- Light/dark mode with system preference auto-detection
+- Manual theme picker (auto, light, dark) persisted in localStorage
+- CSS custom properties for all colors, with dark/light overrides in `public/index.css`
+- `useThemedAsset` hook for theme-aware static assets (logos, images)
+- No flash of wrong theme on page load (inline detection script)
+
 ### 🛡️ Security & Performance
 
 - Rate limiting middleware (configurable per-route)
@@ -104,7 +112,7 @@ Then, access the app at `http://localhost:3000`.
 │   │   └── middlewares/     # Rate limiting, etc.
 │   ├── client/              # Frontend React app
 │   │   ├── components/      # Reusable UI components
-│   │   ├── contexts/        # React contexts (Auth)
+│   │   ├── contexts/        # React contexts (Auth, Theme)
 │   │   ├── lib/             # Client utilities (api, i18n)
 │   │   ├── locales/         # Translation files
 │   │   └── pages/           # Page components
@@ -134,7 +142,7 @@ Then, access the app at `http://localhost:3000`.
 - [ ] Server-Side Rendering (SSR)
 - [ ] OpenAPI/Swagger documentation for API endpoints
 - [ ] WebSocket support for real-time features
-- [ ] Dark mode and theming system
+- [x] Dark mode and theming system
 - [ ] Database seeding for development
 - [ ] Improved deployment setup in Dockerfile, following recommendations from ElysiaJS and Bun's docs.
   - [ ] Use build command

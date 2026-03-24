@@ -47,6 +47,17 @@ This is a full-stack TypeScript template using **Bun + Elysia + React 19 + Tailw
 - `ProtectedRoute` wraps children in `<Layout>` — page components must NOT wrap themselves in `<Layout>`, they render content only
 - Only `ProtectedRoute` (in `src/client/components/ProtectedRoute.tsx`) should render `<Layout>` — it is the single source of the app shell (header, nav, main content area)
 
+## Theming
+
+- All colors are CSS custom properties defined in the `@theme` block in `public/index.css` (dark mode defaults). Light mode overrides live in the `html[data-theme="light"]` block in the same file
+- When adding a new color, always define both the dark value (in `@theme`) and the light value (in `html[data-theme="light"]`)
+- Never use hardcoded Tailwind color classes (e.g. `bg-red-500`, `text-blue-100`) or hex values in components. Always use the CSS variable-based classes (`bg-error`, `text-accent`, `border-border`, etc.)
+- For text on accent-colored backgrounds (e.g. primary buttons), use `text-accent-foreground` which flips between dark/light text per theme
+- For theme-aware static assets (e.g. logos), use the `useThemedAsset` hook from `ThemeContext`. It appends `-light` before the file extension in light mode (e.g. `logo.png` becomes `logo-light.png`)
+- The `ThemeProvider` wraps the entire app in `App.tsx`. Use `useTheme()` to access `{ theme, resolvedTheme, setTheme }`
+- An inline script in `public/index.html` sets `data-theme` before React hydrates to prevent flash of wrong theme
+- Theme preference is stored in localStorage under `@app:theme` (values: `auto`, `light`, `dark`)
+
 ## Code style
 
 - Biome for linting and formatting (2-space indent, LF line endings)
