@@ -7,6 +7,7 @@ const {
   PORT,
   LOG_LEVEL,
   JWT_SECRET,
+  ENCRYPTION_KEY,
   CORS_ORIGIN,
   DATABASE_URL,
   CDN_URL,
@@ -22,18 +23,23 @@ const config = {
   env: (NODE_ENV || "development") as "development" | "production",
   logLevel: (LOG_LEVEL || "info") as LevelWithSilentOrString,
   jwtSecret: JWT_SECRET || "change-me-in-production",
+  encryptionKey: ENCRYPTION_KEY || "change-me-in-production",
   corsOrigin: CORS_ORIGIN || "localhost:3000",
   databaseUrl: DATABASE_URL,
   cdnUrl: CDN_URL || "http://localhost:3000",
 };
 
-if (
-  config.env === "production" &&
-  config.jwtSecret === "change-me-in-production"
-) {
-  throw new Error(
-    "⚠️  JWT_SECRET must be set in production to something other than the default.",
-  );
+if (config.env === "production") {
+  if (config.jwtSecret === "change-me-in-production") {
+    throw new Error(
+      "⚠️  JWT_SECRET must be set in production to something other than the default.",
+    );
+  }
+  if (config.encryptionKey === "change-me-in-production") {
+    throw new Error(
+      "⚠️  ENCRYPTION_KEY must be set in production to something other than the default.",
+    );
+  }
 }
 
 export default config;

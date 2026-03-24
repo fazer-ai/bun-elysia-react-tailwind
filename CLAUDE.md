@@ -58,6 +58,14 @@ This is a full-stack TypeScript template using **Bun + Elysia + React 19 + Tailw
 - An inline script in `public/index.html` sets `data-theme` before React hydrates to prevent flash of wrong theme
 - Theme preference is stored in localStorage under `@app:theme` (values: `auto`, `light`, `dark`)
 
+## Encryption
+
+- `ENCRYPTION_KEY` env var is used to encrypt sensitive data at rest in the database (API tokens, secrets, credentials)
+- Always use `encryptJson()` / `decryptJson()` from `src/api/lib/crypto.ts` when writing/reading sensitive JSON to/from Prisma `Json` fields
+- The key must be set to a unique, strong value in production (min 32 characters recommended)
+- Changing the key will invalidate all previously encrypted data. Plan a migration if key rotation is needed
+- Never log, expose in API responses, or include in frontend bundles
+
 ## Code style
 
 - Biome for linting and formatting (2-space indent, LF line endings)

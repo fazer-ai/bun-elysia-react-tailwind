@@ -30,7 +30,13 @@ logger.info(
     deepSanitizeObject(
       { ...config, port },
       {
-        omitKeys: ["apiKey", "secret", "jwtSecret", "databaseUrl"],
+        omitKeys: [
+          "apiKey",
+          "secret",
+          "jwtSecret",
+          "encryptionKey",
+          "databaseUrl",
+        ],
       },
     ),
     null,
