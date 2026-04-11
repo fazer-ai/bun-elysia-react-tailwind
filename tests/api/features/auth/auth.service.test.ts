@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import config from "@/config";
 import {
   mockCreate,
@@ -112,10 +112,14 @@ describe("auth.service", () => {
   });
 
   describe("getSignupRoleForEmail", () => {
-    const originalAdmin = config.adminSignupDomains;
+    const originalAdmin = [...config.adminSignupDomains];
 
     beforeEach(() => {
-      config.adminSignupDomains = originalAdmin;
+      config.adminSignupDomains = [...originalAdmin];
+    });
+
+    afterEach(() => {
+      config.adminSignupDomains = [...originalAdmin];
     });
 
     test("returns USER when adminSignupDomains is empty", () => {
@@ -159,10 +163,14 @@ describe("auth.service", () => {
   });
 
   describe("isEmailDomainAllowed", () => {
-    const originalAllowed = config.allowedSignupDomains;
+    const originalAllowed = [...config.allowedSignupDomains];
 
     beforeEach(() => {
-      config.allowedSignupDomains = originalAllowed;
+      config.allowedSignupDomains = [...originalAllowed];
+    });
+
+    afterEach(() => {
+      config.allowedSignupDomains = [...originalAllowed];
     });
 
     test("allows any domain when allowlist is empty", () => {

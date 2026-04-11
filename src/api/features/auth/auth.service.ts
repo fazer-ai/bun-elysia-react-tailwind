@@ -10,7 +10,9 @@ function emailDomainMatches(email: string, domains: string[]): boolean {
   // NOTE: Defensive normalization in case the configured list is mutated
   // outside of parseDomainList (e.g. tests).
   const normalized = new Set(
-    domains.map((d) => d.trim().toLowerCase()).filter(Boolean),
+    domains
+      .map((d) => d.trim().toLowerCase().replace(/^@+/, ""))
+      .filter(Boolean),
   );
   return normalized.has(domain);
 }

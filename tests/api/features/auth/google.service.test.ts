@@ -22,6 +22,7 @@ const {
   verifyGoogleIdToken,
   upsertGoogleUser,
   GoogleEmailNotVerifiedError,
+  GoogleEmailDomainNotAllowedError,
   GoogleIdMismatchError,
 } = await import("@/api/features/auth/google.service");
 
@@ -199,6 +200,52 @@ describe("google.service", () => {
       } finally {
         config.adminSignupDomains = original;
       }
+    });
+
+    test("rejects when domain is not in allowedSignupDomains", async () => {
+      const config = (await import("@/config")).default;
+      const original = [...config.allowedSignupDomains];
+      config.allowedSignupDomains = ["allowed.com"];
+      try {
+        mockFindUnique.mockResolvedValueOnce(null);
+        mockFindFirst.mockResolvedValueOnce(null);
+
+        await expect(upsertGoogleUser(baseProfile)).rejects.toBeInstanceOf(
+          GoogleEmailDomainNotAllowedError,
+        );
+
+        expect(mockCreate).not.toHaveBeenCalled();
+      } finally {
+        config.allowedSignupDomains = original;
+      }
+    });
+
+    test("returns existing user when create races and a concurrent insert wins", async () => {
+      const created = {
+        ...mockUser,
+        email: "user@example.com",
+        googleId: "google-sub-123",
+      };
+      mockFindUnique.mockResolvedValueOnce(null);
+      mockFindFirst.mockResolvedValueOnce(null);
+      mockCreate.mockRejectedValueOnce(
+        Object.assign(new Error("Unique constraint failed"), { code: "P2002" }),
+      );
+      mockFindUnique.mockResolvedValueOnce(created);
+
+      const result = await upsertGoogleUser(baseProfile);
+
+      expect(result).toEqual(created);
+      expect(mockFindUnique).toHaveBeenCalledTimes(2);
+    });
+
+    test("rethrows create error when no concurrent row exists", async () => {
+      mockFindUnique.mockResolvedValueOnce(null);
+      mockFindFirst.mockResolvedValueOnce(null);
+      mockCreate.mockRejectedValueOnce(new Error("db down"));
+      mockFindUnique.mockResolvedValueOnce(null);
+
+      await expect(upsertGoogleUser(baseProfile)).rejects.toThrow(/db down/);
     });
 
     test("lowercases email on create", async () => {

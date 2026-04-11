@@ -151,7 +151,12 @@ export const authController = new Elysia({ prefix: "/auth" })
         const profile = await verifyGoogleIdToken(body.credential);
         const user = await upsertGoogleUser(profile);
         await setAuthCookie(user);
-        updateLastLogin(user.id);
+        void updateLastLogin(user.id).catch((error) => {
+          logger.warn(
+            { error, userId: user.id.toString() },
+            "Failed to update last login",
+          );
+        });
 
         return {
           user: {
