@@ -1,24 +1,45 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useNavigate } from "react-router";
-import { Button, Input } from "@/client/components";
+import { Button, GoogleSignInButton, Input } from "@/client/components";
 import { useAuth } from "@/client/contexts/AuthContext";
+import { useGoogleSignIn } from "@/client/hooks/useGoogleSignIn";
 import { api } from "@/client/lib/api";
+import type { ApiErrorPayload } from "@/client/lib/types";
+import { cn } from "@/client/lib/utils";
 
 export function SignupPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, login } = useAuth();
+  const { user, login, providers } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { pending: googlePending, signIn: signInWithGoogle } = useGoogleSignIn({
+    onError: setError,
+  });
+  const authPending = loading || googlePending;
+  // NOTE: Synchronous cross-method lock so a Google credential callback and a
+  // form submit cannot both pass their guards before React commits the pending
+  // state update.
+  const authInFlightRef = useRef(false);
 
   if (user) return <Navigate to="/" replace />;
 
+  const handleGoogleCredential = (credential: string) => {
+    if (authInFlightRef.current) return;
+    authInFlightRef.current = true;
+    setError("");
+    void signInWithGoogle(credential).finally(() => {
+      authInFlightRef.current = false;
+    });
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (authInFlightRef.current) return;
     setError("");
 
     if (password !== confirmPassword) {
@@ -26,6 +47,7 @@ export function SignupPage() {
       return;
     }
 
+    authInFlightRef.current = true;
     setLoading(true);
 
     try {
@@ -36,7 +58,7 @@ export function SignupPage() {
 
       if (apiError) {
         setError(
-          (apiError.value as { error?: string })?.error ||
+          (apiError.value as ApiErrorPayload)?.error ||
             t("auth.signupFailed", "Signup failed"),
         );
         return;
@@ -51,6 +73,7 @@ export function SignupPage() {
         t("auth.genericError", "Something went wrong. Please try again."),
       );
     } finally {
+      authInFlightRef.current = false;
       setLoading(false);
     }
   };
@@ -72,6 +95,33 @@ export function SignupPage() {
             </div>
           )}
 
+          {providers.google && (
+            <>
+              <div
+                className={cn({ "opacity-50": authPending })}
+                aria-busy={authPending}
+              >
+                <GoogleSignInButton
+                  clientId={providers.google.clientId}
+                  onCredential={handleGoogleCredential}
+                  disabled={googlePending}
+                  onError={() =>
+                    setError(
+                      t("auth.googleSignInFailed", "Google sign-in failed"),
+                    )
+                  }
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-text-secondary text-xs uppercase">
+                  {t("auth.or", "or")}
+                </span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+            </>
+          )}
+
           <div>
             <label
               htmlFor="email"
@@ -85,6 +135,7 @@ export function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={authPending}
               placeholder={t("auth.emailPlaceholder", "you@example.com")}
             />
           </div>
@@ -104,6 +155,7 @@ export function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
+              disabled={authPending}
               placeholder="••••••••"
               helperText={t(
                 "auth.passwordMinLength",
@@ -127,11 +179,17 @@ export function SignupPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={8}
+              disabled={authPending}
               placeholder="••••••••"
             />
           </div>
 
-          <Button type="submit" loading={loading} className="w-full">
+          <Button
+            type="submit"
+            loading={loading}
+            disabled={authPending}
+            className="w-full"
+          >
             {loading
               ? t("auth.creatingAccount", "Creating account...")
               : t("auth.signup", "Sign Up")}

@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import config from "@/config";
 import {
   mockCreate,
   mockFindFirst,
@@ -9,8 +10,14 @@ import {
 
 setupPrismaMock();
 
-const { getUserByEmail, createUser, hashPassword, verifyPassword } =
-  await import("@/api/features/auth/auth.service");
+const {
+  getUserByEmail,
+  createUser,
+  hashPassword,
+  verifyPassword,
+  isEmailDomainAllowed,
+  getSignupRoleForEmail,
+} = await import("@/api/features/auth/auth.service");
 
 describe("auth.service", () => {
   beforeEach(() => {
@@ -46,38 +53,98 @@ describe("auth.service", () => {
           id: true,
           email: true,
           name: true,
-          passwordHash: true,
           role: true,
+          passwordHash: true,
+          googleId: true,
         },
       });
     });
   });
 
   describe("createUser", () => {
-    test("creates user with trimmed lowercase email", async () => {
+    test("creates user with trimmed lowercase email and USER role by default", async () => {
       const createdUser = { ...mockUser, email: "new@example.com" };
       mockCreate.mockResolvedValueOnce(createdUser);
 
       const result = await createUser("  NEW@EXAMPLE.COM  ", "hashedPassword");
 
       expect(result).toEqual(createdUser);
-      expect(mockCreate).toHaveBeenCalledWith({
-        data: {
-          email: "new@example.com",
-          passwordHash: "hashedPassword",
-        },
-      });
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: {
+            email: "new@example.com",
+            passwordHash: "hashedPassword",
+            role: "USER",
+          },
+        }),
+      );
     });
 
-    test("returns created user with all fields", async () => {
+    test("never grants ADMIN on password signup even when domain matches", async () => {
+      const original = [...config.adminSignupDomains];
+      config.adminSignupDomains = ["mycompany.io"];
+      try {
+        mockCreate.mockResolvedValueOnce(mockUser);
+        await createUser("founder@mycompany.io", "hashedPassword");
+        expect(mockCreate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: {
+              email: "founder@mycompany.io",
+              passwordHash: "hashedPassword",
+              role: "USER",
+            },
+          }),
+        );
+      } finally {
+        config.adminSignupDomains = original;
+      }
+    });
+
+    test("requests sanitized projection without passwordHash", async () => {
       mockCreate.mockResolvedValueOnce(mockUser);
+      await createUser("test@example.com", "hashedPassword");
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: { id: true, email: true, name: true, role: true },
+        }),
+      );
+    });
+  });
 
-      const result = await createUser("test@example.com", "hashedPassword");
+  describe("getSignupRoleForEmail", () => {
+    const originalAdmin = [...config.adminSignupDomains];
 
-      expect(result).toHaveProperty("id");
-      expect(result).toHaveProperty("email");
-      expect(result).toHaveProperty("passwordHash");
-      expect(result).toHaveProperty("role");
+    beforeEach(() => {
+      config.adminSignupDomains = [...originalAdmin];
+    });
+
+    afterEach(() => {
+      config.adminSignupDomains = [...originalAdmin];
+    });
+
+    test("returns USER when adminSignupDomains is empty", () => {
+      config.adminSignupDomains = [];
+      expect(getSignupRoleForEmail("anyone@anywhere.com", true)).toBe("USER");
+    });
+
+    test("returns ADMIN when domain matches and email is verified", () => {
+      config.adminSignupDomains = ["mycompany.io"];
+      expect(getSignupRoleForEmail("founder@mycompany.io", true)).toBe("ADMIN");
+    });
+
+    test("never returns ADMIN when email is not verified", () => {
+      config.adminSignupDomains = ["mycompany.io"];
+      expect(getSignupRoleForEmail("founder@mycompany.io", false)).toBe("USER");
+    });
+
+    test("returns USER when domain does not match", () => {
+      config.adminSignupDomains = ["mycompany.io"];
+      expect(getSignupRoleForEmail("user@other.com", true)).toBe("USER");
+    });
+
+    test("matches case-insensitively", () => {
+      config.adminSignupDomains = ["mycompany.io"];
+      expect(getSignupRoleForEmail("Founder@MyCompany.IO", true)).toBe("ADMIN");
     });
   });
 
@@ -97,6 +164,41 @@ describe("auth.service", () => {
       const hash2 = await hashPassword(password);
 
       expect(hash1).not.toBe(hash2);
+    });
+  });
+
+  describe("isEmailDomainAllowed", () => {
+    const originalAllowed = [...config.allowedSignupDomains];
+
+    beforeEach(() => {
+      config.allowedSignupDomains = [...originalAllowed];
+    });
+
+    afterEach(() => {
+      config.allowedSignupDomains = [...originalAllowed];
+    });
+
+    test("allows any domain when allowlist is empty", () => {
+      config.allowedSignupDomains = [];
+      expect(isEmailDomainAllowed("user@anything.com")).toBe(true);
+      expect(isEmailDomainAllowed("user@example.io")).toBe(true);
+    });
+
+    test("allows only listed domains when allowlist is set", () => {
+      config.allowedSignupDomains = ["example.com", "acme.io"];
+      expect(isEmailDomainAllowed("user@example.com")).toBe(true);
+      expect(isEmailDomainAllowed("user@acme.io")).toBe(true);
+      expect(isEmailDomainAllowed("user@other.com")).toBe(false);
+    });
+
+    test("matches case-insensitively and trims input", () => {
+      config.allowedSignupDomains = ["example.com"];
+      expect(isEmailDomainAllowed("  User@EXAMPLE.COM  ")).toBe(true);
+    });
+
+    test("rejects malformed emails when allowlist is set", () => {
+      config.allowedSignupDomains = ["example.com"];
+      expect(isEmailDomainAllowed("not-an-email")).toBe(false);
     });
   });
 

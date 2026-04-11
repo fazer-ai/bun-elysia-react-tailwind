@@ -11,7 +11,35 @@ const {
   CORS_ORIGIN,
   DATABASE_URL,
   CDN_URL,
+  GOOGLE_CLIENT_ID,
+  ALLOWED_SIGNUP_DOMAINS,
+  ADMIN_SIGNUP_DOMAINS,
 } = process.env;
+
+// NOTE: Domain entries are trimmed, lowercased, and have a leading "@" stripped
+// by parseDomainList() before being matched against this pattern. Values like
+// "foo", "example.", or entries containing slashes still fail fast at startup.
+const DOMAIN_RE = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+
+const parseDomainList = (
+  raw: string | undefined,
+  envName: string,
+): string[] => {
+  const values = (raw ?? "")
+    .split(",")
+    .map((d) => d.trim().toLowerCase().replace(/^@+/, ""))
+    .filter(Boolean);
+
+  for (const domain of values) {
+    if (!DOMAIN_RE.test(domain)) {
+      throw new Error(`Invalid domain "${domain}" in ${envName}`);
+    }
+  }
+
+  return values;
+};
+
+const googleClientId = (GOOGLE_CLIENT_ID ?? "").trim();
 
 const config = {
   packageInfo: {
@@ -27,6 +55,16 @@ const config = {
   corsOrigin: CORS_ORIGIN || "localhost:3000",
   databaseUrl: DATABASE_URL,
   cdnUrl: CDN_URL || "http://localhost:3000",
+  googleClientId,
+  googleOAuthEnabled: googleClientId.length > 0,
+  allowedSignupDomains: parseDomainList(
+    ALLOWED_SIGNUP_DOMAINS,
+    "ALLOWED_SIGNUP_DOMAINS",
+  ),
+  adminSignupDomains: parseDomainList(
+    ADMIN_SIGNUP_DOMAINS,
+    "ADMIN_SIGNUP_DOMAINS",
+  ),
 };
 
 if (config.env === "production") {
