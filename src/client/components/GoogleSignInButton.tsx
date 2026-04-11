@@ -5,6 +5,7 @@ import {
   type GoogleCredentialResponse,
   loadGsiScript,
 } from "@/client/lib/google";
+import { cn } from "@/client/lib/utils";
 
 interface GoogleSignInButtonProps {
   clientId: string;
@@ -40,6 +41,10 @@ export function GoogleSignInButton({
       .then((id) => {
         if (cancelled || !containerRef.current) return;
 
+        // NOTE: Clear any previous render so theme/locale changes do not
+        // accumulate stale Google iframes inside the container.
+        containerRef.current.replaceChildren();
+
         id.initialize({
           client_id: clientId,
           callback: (response: GoogleCredentialResponse) => {
@@ -70,6 +75,13 @@ export function GoogleSignInButton({
           locale: i18n.language,
         });
 
+        // NOTE: If renderButton inserted children synchronously, mark ready now.
+        if (containerRef.current.childNodes.length) {
+          setStatus("ready");
+          observer?.disconnect();
+          observer = null;
+        }
+
         id.prompt();
       })
       .catch((err) => {
@@ -86,14 +98,16 @@ export function GoogleSignInButton({
   }, [clientId, resolvedTheme, i18n.language]);
 
   return (
-    <div className="relative min-h-[44px]">
+    <div className={cn("relative min-h-11")}>
       {status === "loading" && (
         <div
           aria-hidden="true"
-          className="absolute inset-0 animate-pulse rounded-md bg-bg-tertiary"
+          className={cn(
+            "absolute inset-0 animate-pulse rounded-md bg-bg-tertiary",
+          )}
         />
       )}
-      <div ref={containerRef} className="flex justify-center" />
+      <div ref={containerRef} className={cn("flex justify-center")} />
     </div>
   );
 }

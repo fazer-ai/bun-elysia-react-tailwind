@@ -22,6 +22,8 @@ const parseDomainList = (raw: string | undefined): string[] =>
     .map((d) => d.trim().toLowerCase())
     .filter(Boolean);
 
+const googleClientId = (GOOGLE_CLIENT_ID ?? "").trim();
+
 const config = {
   packageInfo: {
     name: packageInfo.name,
@@ -36,8 +38,8 @@ const config = {
   corsOrigin: CORS_ORIGIN || "localhost:3000",
   databaseUrl: DATABASE_URL,
   cdnUrl: CDN_URL || "http://localhost:3000",
-  googleClientId: GOOGLE_CLIENT_ID || "",
-  googleOAuthEnabled: Boolean(GOOGLE_CLIENT_ID),
+  googleClientId,
+  googleOAuthEnabled: googleClientId.length > 0,
   allowedSignupDomains: parseDomainList(ALLOWED_SIGNUP_DOMAINS),
   adminSignupDomains: parseDomainList(ADMIN_SIGNUP_DOMAINS),
 };

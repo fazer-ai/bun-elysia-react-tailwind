@@ -43,6 +43,8 @@ declare global {
   }
 }
 
+const SCRIPT_LOAD_TIMEOUT_MS = 10_000;
+
 let loadPromise: Promise<GoogleAccountsId> | null = null;
 
 export function loadGsiScript(): Promise<GoogleAccountsId> {
@@ -62,19 +64,60 @@ export function loadGsiScript(): Promise<GoogleAccountsId> {
     script.src = GSI_SCRIPT_SRC;
     script.async = true;
     script.defer = true;
-    script.addEventListener("load", () => {
+
+    let timeoutId: number | undefined;
+
+    const finishWithSuccess = (id: GoogleAccountsId) => {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      resolve(id);
+    };
+
+    const finishWithError = (err: Error) => {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      loadPromise = null;
+      reject(err);
+    };
+
+    const onLoad = () => {
       const id = window.google?.accounts?.id;
       if (id) {
-        resolve(id);
+        finishWithSuccess(id);
       } else {
-        loadPromise = null;
-        reject(new Error("GSI script loaded but window.google is undefined"));
+        finishWithError(
+          new Error("GSI script loaded but window.google is undefined"),
+        );
       }
-    });
-    script.addEventListener("error", () => {
-      loadPromise = null;
-      reject(new Error("Failed to load Google Identity Services script"));
-    });
+    };
+
+    const onError = () => {
+      finishWithError(
+        new Error("Failed to load Google Identity Services script"),
+      );
+    };
+
+    script.addEventListener("load", onLoad, { once: true });
+    script.addEventListener("error", onError, { once: true });
+
+    // NOTE: When reusing a pre-existing script tag, load/error events may have
+    // already fired before our listeners attached. Settle synchronously if the
+    // SDK is already available.
+    if (existing && window.google?.accounts?.id) {
+      finishWithSuccess(window.google.accounts.id);
+      return;
+    }
+
+    // NOTE: Safety net so a hung/blocked load doesn't leave the promise pending forever.
+    timeoutId = window.setTimeout(() => {
+      const id = window.google?.accounts?.id;
+      if (id) {
+        finishWithSuccess(id);
+      } else {
+        finishWithError(
+          new Error("Timed out loading Google Identity Services script"),
+        );
+      }
+    }, SCRIPT_LOAD_TIMEOUT_MS);
+
     if (!existing) document.head.appendChild(script);
   });
 

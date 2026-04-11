@@ -8,6 +8,7 @@ import {
   verifyPassword,
 } from "@/api/features/auth/auth.service";
 import {
+  GoogleEmailDomainNotAllowedError,
   upsertGoogleUser,
   verifyGoogleIdToken,
 } from "@/api/features/auth/google.service";
@@ -154,6 +155,15 @@ export const authController = new Elysia({ prefix: "/auth" })
         };
       } catch (error) {
         logger.warn({ error }, "Google sign-in failed");
+        if (error instanceof GoogleEmailDomainNotAllowedError) {
+          set.status = 400;
+          return {
+            error: translate(
+              "errors.emailDomainNotAllowed",
+              "Email domain is not allowed",
+            ),
+          };
+        }
         set.status = 401;
         return {
           error: translate(

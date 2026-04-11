@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Link, Navigate, useNavigate } from "react-router";
 import { Button, GoogleSignInButton, Input } from "@/client/components";
 import { useAuth } from "@/client/contexts/AuthContext";
+import { useGoogleSignIn } from "@/client/hooks/useGoogleSignIn";
 import { api } from "@/client/lib/api";
+import type { ApiErrorPayload } from "@/client/lib/types";
+import { cn } from "@/client/lib/utils";
 
 export function SignupPage() {
   const { t } = useTranslation();
@@ -14,29 +17,15 @@ export function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { pending: googlePending, signIn: signInWithGoogle } = useGoogleSignIn({
+    onError: setError,
+  });
 
   if (user) return <Navigate to="/" replace />;
 
-  const handleGoogleCredential = async (credential: string) => {
+  const handleGoogleCredential = (credential: string) => {
     setError("");
-    try {
-      const { data, error: apiError } = await api.api.auth.google.post({
-        credential,
-      });
-      if (apiError) {
-        setError(
-          (apiError.value as { error?: string })?.error ||
-            t("auth.googleSignInFailed", "Google sign-in failed"),
-        );
-        return;
-      }
-      if (data?.user) {
-        login(data.user);
-        navigate("/");
-      }
-    } catch {
-      setError(t("auth.googleSignInFailed", "Google sign-in failed"));
-    }
+    return signInWithGoogle(credential);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -58,7 +47,7 @@ export function SignupPage() {
 
       if (apiError) {
         setError(
-          (apiError.value as { error?: string })?.error ||
+          (apiError.value as ApiErrorPayload)?.error ||
             t("auth.signupFailed", "Signup failed"),
         );
         return;
@@ -96,15 +85,22 @@ export function SignupPage() {
 
           {providers.google && (
             <>
-              <GoogleSignInButton
-                clientId={providers.google.clientId}
-                onCredential={handleGoogleCredential}
-                onError={() =>
-                  setError(
-                    t("auth.googleSignInFailed", "Google sign-in failed"),
-                  )
-                }
-              />
+              <div
+                className={cn({
+                  "pointer-events-none opacity-50": googlePending,
+                })}
+                aria-busy={googlePending}
+              >
+                <GoogleSignInButton
+                  clientId={providers.google.clientId}
+                  onCredential={handleGoogleCredential}
+                  onError={() =>
+                    setError(
+                      t("auth.googleSignInFailed", "Google sign-in failed"),
+                    )
+                  }
+                />
+              </div>
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-border" />
                 <span className="text-text-secondary text-xs uppercase">
