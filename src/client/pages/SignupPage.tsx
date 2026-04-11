@@ -20,16 +20,19 @@ export function SignupPage() {
   const { pending: googlePending, signIn: signInWithGoogle } = useGoogleSignIn({
     onError: setError,
   });
+  const authPending = loading || googlePending;
 
   if (user) return <Navigate to="/" replace />;
 
   const handleGoogleCredential = (credential: string) => {
+    if (authPending) return;
     setError("");
     return signInWithGoogle(credential);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (authPending) return;
     setError("");
 
     if (password !== confirmPassword) {
@@ -87,9 +90,9 @@ export function SignupPage() {
             <>
               <div
                 className={cn({
-                  "pointer-events-none opacity-50": googlePending,
+                  "pointer-events-none opacity-50": authPending,
                 })}
-                aria-busy={googlePending}
+                aria-busy={authPending}
               >
                 <GoogleSignInButton
                   clientId={providers.google.clientId}
@@ -124,6 +127,7 @@ export function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={authPending}
               placeholder={t("auth.emailPlaceholder", "you@example.com")}
             />
           </div>
@@ -143,6 +147,7 @@ export function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
+              disabled={authPending}
               placeholder="••••••••"
               helperText={t(
                 "auth.passwordMinLength",
@@ -166,11 +171,17 @@ export function SignupPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={8}
+              disabled={authPending}
               placeholder="••••••••"
             />
           </div>
 
-          <Button type="submit" loading={loading} className="w-full">
+          <Button
+            type="submit"
+            loading={loading}
+            disabled={authPending}
+            className="w-full"
+          >
             {loading
               ? t("auth.creatingAccount", "Creating account...")
               : t("auth.signup", "Sign Up")}

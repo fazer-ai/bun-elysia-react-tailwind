@@ -18,8 +18,12 @@ mock.module("jose", () => ({
   jwtVerify: mockJwtVerify,
 }));
 
-const { verifyGoogleIdToken, upsertGoogleUser, GoogleEmailNotVerifiedError } =
-  await import("@/api/features/auth/google.service");
+const {
+  verifyGoogleIdToken,
+  upsertGoogleUser,
+  GoogleEmailNotVerifiedError,
+  GoogleIdMismatchError,
+} = await import("@/api/features/auth/google.service");
 
 describe("google.service", () => {
   beforeEach(() => {
@@ -118,15 +122,32 @@ describe("google.service", () => {
       expect(result.id).toBe(mockUser.id);
     });
 
-    test("rejects linking when email is not verified", async () => {
+    test("rejects unverified emails before any link/create branch", async () => {
       mockFindUnique.mockResolvedValueOnce(null);
-      mockFindFirst.mockResolvedValueOnce({ ...mockUser });
 
       await expect(
         upsertGoogleUser({ ...baseProfile, emailVerified: false }),
       ).rejects.toBeInstanceOf(GoogleEmailNotVerifiedError);
 
+      // NOTE: must short-circuit before email lookup, allowlist, or create.
+      expect(mockFindFirst).not.toHaveBeenCalled();
       expect(mockUpdate).not.toHaveBeenCalled();
+      expect(mockCreate).not.toHaveBeenCalled();
+    });
+
+    test("rejects linking when existing account has a different googleId", async () => {
+      mockFindUnique.mockResolvedValueOnce(null);
+      mockFindFirst.mockResolvedValueOnce({
+        ...mockUser,
+        googleId: "different-google-sub",
+      });
+
+      await expect(upsertGoogleUser(baseProfile)).rejects.toBeInstanceOf(
+        GoogleIdMismatchError,
+      );
+
+      expect(mockUpdate).not.toHaveBeenCalled();
+      expect(mockCreate).not.toHaveBeenCalled();
     });
 
     test("creates new user when no existing account matches", async () => {

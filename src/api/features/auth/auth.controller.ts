@@ -164,6 +164,9 @@ export const authController = new Elysia({ prefix: "/auth" })
             ),
           };
         }
+        // NOTE: GoogleEmailNotVerifiedError and GoogleIdMismatchError fall
+        // through to the generic 401 below on purpose, so we don't leak
+        // whether an account exists or how it is linked.
         set.status = 401;
         return {
           error: translate(

@@ -39,6 +39,13 @@ export class GoogleEmailDomainNotAllowedError extends Error {
   }
 }
 
+export class GoogleIdMismatchError extends Error {
+  constructor() {
+    super("Email is already linked to a different Google account");
+    this.name = "GoogleIdMismatchError";
+  }
+}
+
 export async function verifyGoogleIdToken(
   credential: string,
 ): Promise<GoogleProfile> {
@@ -69,10 +76,21 @@ export async function upsertGoogleUser(
     return byGoogleId;
   }
 
+  // NOTE: Reject unverified Google emails before any account creation or
+  // linking path so an unverified address cannot inherit ADMIN_SIGNUP_DOMAINS
+  // promotion or pass the allowlist check.
+  if (!profile.emailVerified) {
+    throw new GoogleEmailNotVerifiedError();
+  }
+
   const byEmail = await getUserByEmail(profile.email);
   if (byEmail) {
-    if (!profile.emailVerified) {
-      throw new GoogleEmailNotVerifiedError();
+    // NOTE: If the existing account is already linked to a *different* Google
+    // identity, refuse to relink. Otherwise a recycled workspace address (or a
+    // second Google identity sharing the same email) could take over the
+    // account silently.
+    if (byEmail.googleId && byEmail.googleId !== profile.sub) {
+      throw new GoogleIdMismatchError();
     }
     return linkGoogleIdToUser(byEmail.id, profile.sub);
   }

@@ -34,6 +34,7 @@ export async function getUserByEmail(email: string) {
     select: {
       ...AUTH_USER_SELECT,
       passwordHash: true,
+      googleId: true,
     },
   });
 }

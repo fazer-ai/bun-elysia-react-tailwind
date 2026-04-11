@@ -53,8 +53,9 @@ describe("auth.service", () => {
           id: true,
           email: true,
           name: true,
-          passwordHash: true,
           role: true,
+          passwordHash: true,
+          googleId: true,
         },
       });
     });

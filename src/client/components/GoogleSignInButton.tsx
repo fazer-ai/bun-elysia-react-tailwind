@@ -37,8 +37,9 @@ export function GoogleSignInButton({
     let observer: MutationObserver | null = null;
     setStatus("loading");
 
-    loadGsiScript()
-      .then((id) => {
+    const init = async () => {
+      try {
+        const id = await loadGsiScript();
         if (cancelled || !containerRef.current) return;
 
         // NOTE: Clear any previous render so theme/locale changes do not
@@ -83,12 +84,14 @@ export function GoogleSignInButton({
         }
 
         id.prompt();
-      })
-      .catch((err) => {
+      } catch (err) {
         if (cancelled) return;
         setStatus("error");
         onErrorRef.current?.(err);
-      });
+      }
+    };
+
+    void init();
 
     return () => {
       cancelled = true;
