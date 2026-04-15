@@ -50,7 +50,7 @@
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.11",
+    "@biomejs/biome": "^2.4.12",
     "@cloudflare/workers-types": "^4.20260411.1",
     "@happy-dom/global-registrator": "^20.9.0",
     "@testing-library/jest-dom": "^6.9.1",
