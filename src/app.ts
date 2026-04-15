@@ -65,6 +65,10 @@ const app = new Elysia()
       assets: config.env === "production" ? "dist" : "public",
       prefix: "/",
       alwaysStatic: true,
+      // NOTE: @elysiajs/static 1.4.9 renamed `bundleHTML` to `bunFullstack`
+      // and flipped the default to `false`. Without this, dev serves
+      // `public/index.html` raw and the `<script src="../src/client/frontend.tsx">`
+      // reference cannot be resolved. See elysiajs/elysia-static#63.
       bunFullstack: config.env === "development",
     }),
   )
