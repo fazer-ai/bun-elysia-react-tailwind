@@ -121,6 +121,14 @@ To narrow the takeover window for `bun set-admin`-created accounts, the Google l
 - An inline script in `public/index.html` sets `data-theme` before React hydrates to prevent flash of wrong theme
 - Theme preference is stored in localStorage under `@app:theme` (values: `auto`, `light`, `dark`)
 
+## CSP
+
+`src/app.ts` configures `elysia-helmet` with an explicit allowlist (dev has CSP disabled). Defaults from `elysia-helmet` cover `default-src`, `base-uri`, `form-action`, `frame-ancestors`, `object-src`, `script-src-attr`, and `upgrade-insecure-requests`. Directives set explicitly in `src/api/lib/csp.ts`: `script-src`, `style-src`, `img-src`, `font-src`, `connect-src`.
+
+Inline scripts in `public/index.html` (e.g. the theme-detection script) are allowed via a `'sha256-...'` entry added to `script-src`. Hashes are computed at server startup from the inline scripts found in `dist/index.html`. Adding or editing an inline script requires a rebuild (`bun run build`) for the CSP header to match the served HTML.
+
+When adding external dependencies (analytics, captcha, OAuth, CDN), extend the relevant directives in `cspDirectives` (e.g. add the origin to `scriptSrc` / `connectSrc` / `frameSrc`).
+
 ## Encryption
 
 - `ENCRYPTION_KEY` env var is used to encrypt sensitive data at rest in the database (API tokens, secrets, credentials)

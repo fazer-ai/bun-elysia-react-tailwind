@@ -7,18 +7,20 @@
   <link rel="icon" href="./favicon-light.png" media="(prefers-color-scheme: light)" />
   <link rel="icon" href="./favicon-dark.png" media="(prefers-color-scheme: dark)" />
   <title>Bun + React - fazer.ai Template</title>
+  <script>
+    (function () {
+      var stored;
+      try { stored = localStorage.getItem("@app:theme"); } catch (_) {}
+      var pref = stored === "light" || stored === "dark" || stored === "auto" ? stored : "auto";
+      var resolved = pref === "auto"
+        ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+        : pref;
+      document.documentElement.dataset.theme = resolved;
+    })();
+  </script>
 </head>
 
 <body>
-  <script>
-    (function() {
-      var s = localStorage.getItem('@app:theme');
-      var t = 'dark';
-      if (s === 'light') t = 'light';
-      else if (s !== 'dark' && window.matchMedia('(prefers-color-scheme: light)').matches) t = 'light';
-      document.documentElement.dataset.theme = t;
-    })();
-  </script>
   <div id="root"></div>
   <script type="module" src="../src/client/frontend.tsx"></script>
 </body>

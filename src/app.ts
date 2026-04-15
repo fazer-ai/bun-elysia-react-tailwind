@@ -3,6 +3,7 @@ import { staticPlugin } from "@elysiajs/static";
 import Elysia from "elysia";
 import { helmet } from "elysia-helmet";
 import api from "@/api";
+import { cspDirectives } from "@/api/lib/csp";
 import logger from "@/api/lib/logger";
 import { localeMiddleware } from "@/api/middlewares/locale";
 import {
@@ -14,7 +15,13 @@ import config from "@/config";
 const HASHED_ASSET_PATTERN = /-[a-z0-9]{8,}\.[\w]+$/i;
 
 const app = new Elysia()
-  .use(helmet())
+  .use(
+    helmet(
+      config.env === "development"
+        ? { contentSecurityPolicy: false }
+        : { contentSecurityPolicy: { directives: cspDirectives } },
+    ),
+  )
   .use(localeMiddleware)
   .onAfterResponse(({ request, set }) => {
     logger.info("%s %s [%s]", request.method, request.url, set.status);
@@ -58,6 +65,7 @@ const app = new Elysia()
       assets: config.env === "production" ? "dist" : "public",
       prefix: "/",
       alwaysStatic: true,
+      bunFullstack: config.env === "development",
     }),
   )
   .group("/api", (app) => app.use(api));
