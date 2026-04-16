@@ -54,17 +54,21 @@ function getCdnOrigin(): string | null {
   return cdnOrigin === publicOrigin ? null : cdnOrigin;
 }
 
+export function buildCspDirectives(
+  inlineScriptHashes: string[],
+  cdnOrigin: string | null,
+): Record<string, string[]> {
+  const cdn = cdnOrigin ? [cdnOrigin] : [];
+  return {
+    scriptSrc: ["'self'", ...inlineScriptHashes, ...cdn],
+    styleSrc: ["'self'", "'unsafe-inline'", ...cdn],
+    imgSrc: ["'self'", "data:", ...cdn],
+    fontSrc: ["'self'", "data:", ...cdn],
+    connectSrc: ["'self'", ...cdn],
+  };
+}
+
 const inlineScriptHashes = await loadDistInlineScriptHashes();
 const cdnOrigin = getCdnOrigin();
 
-export const cspDirectives: Record<string, string[]> = {
-  scriptSrc: [
-    "'self'",
-    ...inlineScriptHashes,
-    ...(cdnOrigin ? [cdnOrigin] : []),
-  ],
-  styleSrc: ["'self'", "'unsafe-inline'", ...(cdnOrigin ? [cdnOrigin] : [])],
-  imgSrc: ["'self'", "data:", ...(cdnOrigin ? [cdnOrigin] : [])],
-  fontSrc: ["'self'", "data:", ...(cdnOrigin ? [cdnOrigin] : [])],
-  connectSrc: ["'self'", ...(cdnOrigin ? [cdnOrigin] : [])],
-};
+export const cspDirectives = buildCspDirectives(inlineScriptHashes, cdnOrigin);

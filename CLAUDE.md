@@ -145,6 +145,7 @@ When adding external dependencies (analytics, captcha, OAuth, CDN), extend the r
 - Path alias: `@/` maps to `src/`
 - Strict TypeScript
 - Husky pre-commit hooks run lint, type-check, and tests
+- Prefer `Bun.file(path).text()` / `Bun.file(path).json()` over `node:fs` for file reads — no other file in the repo imports `node:fs`, and the Bun API is idiomatic and supports both sync and async patterns cleanly
 - Always run `bun check` after applying all code changes to ensure code quality and correctness
 - Only add comments when strictly necessary — never obvious/redundant ones. Comments must have a tag: `// TODO:`, `// NOTE:`, or `// FIXME:`
 - **Cursor styles**: `cursor: pointer` is set globally on `button`, `select`, `[role="button"]` in `public/index.css` — never use `cursor-pointer` on individual elements. Only use cursor utilities for overrides like `cursor-not-allowed` on disabled states
