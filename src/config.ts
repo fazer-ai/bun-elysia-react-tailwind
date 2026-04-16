@@ -54,7 +54,7 @@ const config = {
   encryptionKey: ENCRYPTION_KEY || "change-me-in-production",
   corsOrigin: CORS_ORIGIN || "localhost:3000",
   databaseUrl: DATABASE_URL,
-  cdnUrl: CDN_URL || "http://localhost:3000",
+  cdnUrl: CDN_URL ?? "",
   googleClientId,
   googleOAuthEnabled: googleClientId.length > 0,
   allowedSignupDomains: parseDomainList(

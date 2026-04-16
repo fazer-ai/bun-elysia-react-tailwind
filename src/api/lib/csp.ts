@@ -32,9 +32,9 @@ async function loadDistInlineScriptHashes(): Promise<string[]> {
 
 function getCdnOrigin(): string | null {
   if (!config.cdnUrl) return null;
+  let cdnOrigin: string;
   try {
-    const origin = new URL(config.cdnUrl).origin;
-    return origin === config.publicUrl ? null : origin;
+    cdnOrigin = new URL(config.cdnUrl).origin;
   } catch {
     if (config.env === "production") {
       throw new Error(
@@ -43,6 +43,15 @@ function getCdnOrigin(): string | null {
     }
     return null;
   }
+  // NOTE: Normalize both sides via URL so a trailing slash or path in
+  // PUBLIC_URL does not cause a false mismatch against the CDN origin.
+  let publicOrigin: string;
+  try {
+    publicOrigin = new URL(config.publicUrl).origin;
+  } catch {
+    return cdnOrigin;
+  }
+  return cdnOrigin === publicOrigin ? null : cdnOrigin;
 }
 
 const inlineScriptHashes = await loadDistInlineScriptHashes();
