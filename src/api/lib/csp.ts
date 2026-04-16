@@ -2,7 +2,9 @@ import { join } from "node:path";
 import config from "@/config";
 
 const DIST_HTML = join(process.cwd(), "dist", "index.html");
+const PUBLIC_HTML = join(process.cwd(), "public", "index.html");
 const INLINE_SCRIPT_RE = /<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi;
+const GSI_ORIGIN = "https://accounts.google.com";
 
 export function extractInlineScriptHashes(html: string): string[] {
   const hashes: string[] = [];
@@ -17,16 +19,19 @@ export function extractInlineScriptHashes(html: string): string[] {
   return hashes;
 }
 
-async function loadDistInlineScriptHashes(): Promise<string[]> {
-  if (config.env !== "production") return [];
+async function loadInlineScriptHashes(): Promise<string[]> {
+  const htmlPath = config.env === "production" ? DIST_HTML : PUBLIC_HTML;
   try {
-    return extractInlineScriptHashes(await Bun.file(DIST_HTML).text());
+    return extractInlineScriptHashes(await Bun.file(htmlPath).text());
   } catch (err) {
-    throw new Error(
-      `CSP: could not read ${DIST_HTML} to compute inline script hashes (${
-        err instanceof Error ? err.message : String(err)
-      }). Run \`bun run build\` before starting the server in production.`,
-    );
+    if (config.env === "production") {
+      throw new Error(
+        `CSP: could not read ${htmlPath} to compute inline script hashes (${
+          err instanceof Error ? err.message : String(err)
+        }). Run \`bun run build\` before starting the server in production.`,
+      );
+    }
+    return [];
   }
 }
 
@@ -54,21 +59,47 @@ function getCdnOrigin(): string | null {
   return cdnOrigin === publicOrigin ? null : cdnOrigin;
 }
 
+export type CspBuildOptions = {
+  inlineScriptHashes: string[];
+  cdnOrigin: string | null;
+  googleOAuthEnabled: boolean;
+  isDev: boolean;
+};
+
 export function buildCspDirectives(
-  inlineScriptHashes: string[],
-  cdnOrigin: string | null,
+  opts: CspBuildOptions,
 ): Record<string, string[]> {
-  const cdn = cdnOrigin ? [cdnOrigin] : [];
+  const cdn = opts.cdnOrigin ? [opts.cdnOrigin] : [];
+  const gsi = opts.googleOAuthEnabled ? [GSI_ORIGIN] : [];
+  // NOTE: In dev, allow 'unsafe-inline'/'unsafe-eval' in script-src so the
+  // Bun dev server's injected runtime scripts (visibility/unref pings, HMR)
+  // do not fire false-positive CSP violations on every page load. Hashes
+  // still pin scripts strictly in production.
+  const devScriptUnsafe = opts.isDev
+    ? ["'unsafe-inline'", "'unsafe-eval'"]
+    : [];
   return {
-    scriptSrc: ["'self'", ...inlineScriptHashes, ...cdn],
-    styleSrc: ["'self'", "'unsafe-inline'", ...cdn],
+    scriptSrc: [
+      "'self'",
+      ...devScriptUnsafe,
+      ...opts.inlineScriptHashes,
+      ...cdn,
+      ...gsi,
+    ],
+    styleSrc: ["'self'", "'unsafe-inline'", ...cdn, ...gsi],
     imgSrc: ["'self'", "data:", ...cdn],
     fontSrc: ["'self'", "data:", ...cdn],
-    connectSrc: ["'self'", ...cdn],
+    connectSrc: ["'self'", ...cdn, ...gsi],
+    frameSrc: opts.googleOAuthEnabled ? [GSI_ORIGIN] : ["'none'"],
   };
 }
 
-const inlineScriptHashes = await loadDistInlineScriptHashes();
+const inlineScriptHashes = await loadInlineScriptHashes();
 const cdnOrigin = getCdnOrigin();
 
-export const cspDirectives = buildCspDirectives(inlineScriptHashes, cdnOrigin);
+export const cspDirectives = buildCspDirectives({
+  inlineScriptHashes,
+  cdnOrigin,
+  googleOAuthEnabled: config.googleOAuthEnabled,
+  isDev: config.env !== "production",
+});

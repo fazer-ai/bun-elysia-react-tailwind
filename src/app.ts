@@ -16,11 +16,16 @@ const HASHED_ASSET_PATTERN = /-[a-z0-9]{8,}\.[\w]+$/i;
 
 const app = new Elysia()
   .use(
-    helmet(
-      config.env === "production"
-        ? { contentSecurityPolicy: { directives: cspDirectives } }
-        : { contentSecurityPolicy: false },
-    ),
+    helmet({
+      contentSecurityPolicy: {
+        directives: cspDirectives,
+        // NOTE: In dev, run CSP in Report-Only so violations surface in the
+        // browser console without blocking. Catches third-party-integration
+        // CSP issues (Google Fonts, OAuth, analytics) at `bun dev` time
+        // instead of after a deploy to staging/prod.
+        reportOnly: config.env !== "production",
+      },
+    }),
   )
   .use(localeMiddleware)
   .onAfterResponse(({ request, set }) => {
