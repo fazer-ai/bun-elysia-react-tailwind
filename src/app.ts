@@ -25,6 +25,17 @@ const app = new Elysia()
         // instead of after a deploy to staging/prod.
         reportOnly: config.env !== "production",
       },
+      // NOTE: GSI's "Continue with Google" button opens a cross-origin popup
+      // and relies on window.opener.postMessage to deliver the credential.
+      // The helmet default of Cross-Origin-Opener-Policy: same-origin nulls
+      // window.opener in that popup, breaking the flow with "Cannot read
+      // properties of null (reading 'postMessage')". We relax to
+      // same-origin-allow-popups only when GSI is enabled, keeping the
+      // stricter default for projects that do not use Google Sign-In.
+      // https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid
+      ...(config.googleOAuthEnabled && {
+        crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+      }),
     }),
   )
   .use(localeMiddleware)
