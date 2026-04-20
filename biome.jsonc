@@ -22,6 +22,16 @@
       "recommended": true,
       "nursery": {
         "useSortedClasses": "warn"
+      },
+      "style": {
+        "noJsxLiterals": {
+          "level": "warn",
+          "options": {
+            "noStrings": false,
+            "ignoreProps": true,
+            "allowedStrings": ["·", "•", "×", "→", "/", "|", "?"]
+          }
+        }
       }
     }
   },
@@ -42,6 +52,27 @@
     {
       "includes": ["src/client/**/*.{ts,tsx}", "!src/client/lib/env.ts"],
       "plugins": ["./biome-plugins/no-bun-public-env.grit"]
+    },
+    {
+      "includes": ["src/client/**/*.{ts,tsx}"],
+      "plugins": [
+        "./biome-plugins/no-dynamic-i18n-key.grit",
+        "./biome-plugins/no-t-rename.grit"
+      ]
+    },
+    {
+      "includes": ["src/api/**/*.ts"],
+      "plugins": ["./biome-plugins/no-dynamic-translate-key.grit"]
+    },
+    {
+      "includes": ["tests/**/*.{ts,tsx}"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noJsxLiterals": "off"
+          }
+        }
+      }
     }
   ]
 }

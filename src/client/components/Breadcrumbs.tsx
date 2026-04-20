@@ -18,6 +18,7 @@ export function Breadcrumbs() {
     >
       <ol className="flex items-center gap-1 text-sm">
         {crumbs.map((crumb, index) => {
+          // biome-ignore lint/plugin: extracted via magic comments in src/client/lib/breadcrumbs.ts
           const label = t(crumb.labelKey, crumb.defaultLabel);
           const isLast = index === crumbs.length - 1;
           return (

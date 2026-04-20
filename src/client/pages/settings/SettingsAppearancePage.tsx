@@ -153,6 +153,7 @@ export function SettingsAppearancePage() {
       return (
         <>
           <Icon className="h-4 w-4" aria-hidden="true" />
+          {/* biome-ignore lint/plugin: extracted via magic comments in UserMenu.tsx */}
           {t(opt.labelKey)}
         </>
       );

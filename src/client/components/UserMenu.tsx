@@ -100,6 +100,7 @@ export function UserMenu() {
                   })}
                 >
                   <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  {/* biome-ignore lint/plugin: extracted via magic comments in THEME_OPTIONS */}
                   <span className="flex-1">{t(labelKey)}</span>
                   {selected && (
                     <Check

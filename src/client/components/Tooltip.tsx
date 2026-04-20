@@ -31,6 +31,7 @@ export function Tooltip({
       className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-border bg-transparent p-0 font-medium text-[10px] text-text-muted"
       aria-label={content}
     >
+      {/* biome-ignore lint/style/noJsxLiterals: decorative glyph, accessible name comes from aria-label */}
       ?
     </button>
   );

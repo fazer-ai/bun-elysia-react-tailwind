@@ -44,6 +44,7 @@ function SidebarNav({
       <ul className="flex flex-col gap-1">
         {items.map((item) => {
           const Icon = item.icon;
+          // biome-ignore lint/plugin: extracted via magic comments in src/client/lib/navigation.tsx
           const label = t(item.labelKey, item.defaultLabel);
           const link = (
             <NavLink
