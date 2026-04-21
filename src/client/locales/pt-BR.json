@@ -101,12 +101,16 @@
     "collapse": "Recolher",
     "collapsed": "Recolhido",
     "expand": "Expandir",
+    "github": "GitHub",
     "home": "Início",
     "mainNavigation": "Navegação principal",
+    "needHelp": "Precisa de ajuda?",
     "openMenu": "Abrir menu",
     "resizeSidebar": "Redimensionar menu lateral",
     "settings": "Configurações",
-    "skipToContent": "Pular para o conteúdo"
+    "skipToContent": "Pular para o conteúdo",
+    "support": "Suporte",
+    "website": "fazer.ai"
   },
   "settings": {
     "about": "Sobre",
@@ -122,6 +126,14 @@
     "subtitle": "Gerencie sua conta e preferências",
     "themeHint": "Escolha claro, escuro ou seguir o sistema.",
     "title": "Configurações"
+  },
+  "support": {
+    "copied": "Copiado",
+    "copyEmail": "Copiar email",
+    "copyFailed": "Falha",
+    "description": "Envie um email para:",
+    "email": "suporte@fazer.ai",
+    "title": "Contatar suporte"
   },
   "theme": {
     "auto": "Auto",

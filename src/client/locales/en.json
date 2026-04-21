@@ -101,12 +101,16 @@
     "collapse": "Collapse",
     "collapsed": "Collapsed",
     "expand": "Expand",
+    "github": "GitHub",
     "home": "Home",
     "mainNavigation": "Main navigation",
+    "needHelp": "Need help?",
     "openMenu": "Open menu",
     "resizeSidebar": "Resize sidebar",
     "settings": "Settings",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "support": "Support",
+    "website": "fazer.ai"
   },
   "settings": {
     "about": "About",
@@ -122,6 +126,14 @@
     "subtitle": "Manage your account and preferences",
     "themeHint": "Choose light, dark, or follow your system.",
     "title": "Settings"
+  },
+  "support": {
+    "copied": "Copied",
+    "copyEmail": "Copy email",
+    "copyFailed": "Failed",
+    "description": "Send us an email at:",
+    "email": "support@fazer.ai",
+    "title": "Contact support"
   },
   "theme": {
     "auto": "Auto",

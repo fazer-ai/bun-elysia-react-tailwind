@@ -5,6 +5,7 @@ import {
   LogOut,
   Monitor,
   Moon,
+  Settings,
   Sun,
   UserRound,
 } from "lucide-react";
@@ -148,6 +149,14 @@ export function UserMenu() {
           </DropdownMenuPrimitive.RadioGroup>
 
           <DropdownMenuPrimitive.Separator className="my-1 h-px bg-border" />
+
+          <DropdownMenuPrimitive.Item
+            onSelect={() => navigate("/settings")}
+            className={menuItemCls}
+          >
+            <Settings className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span>{t("nav.settings", "Settings")}</span>
+          </DropdownMenuPrimitive.Item>
 
           <DropdownMenuPrimitive.Item
             onSelect={handleLogout}

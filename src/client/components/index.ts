@@ -10,6 +10,7 @@ export { Modal } from "./Modal";
 export { PageContainer } from "./PageContainer";
 export { ProtectedRoute } from "./ProtectedRoute";
 export { Sidebar } from "./Sidebar";
+export { SupportModal } from "./SupportModal";
 export { ToastProvider, useToast } from "./Toast";
 export { Tooltip } from "./Tooltip";
 export { UserMenu } from "./UserMenu";

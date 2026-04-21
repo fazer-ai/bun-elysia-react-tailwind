@@ -1,9 +1,13 @@
 import {
+  Globe,
   LayoutDashboard,
+  LifeBuoy,
   type LucideIcon,
   Settings,
   Shield,
 } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
+import { GithubIcon } from "@/client/components/icons/GithubIcon";
 
 export interface NavItem {
   to: string;
@@ -45,3 +49,50 @@ export function filterNavItems(
 ): NavItem[] {
   return items.filter((item) => !item.requireAdmin || role === "ADMIN");
 }
+
+export interface FooterLink {
+  href: string;
+  labelKey: string;
+  defaultLabel: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+}
+
+export interface SupportContact {
+  emailKey: string;
+  defaultEmail: string;
+  labelKey: string;
+  defaultLabel: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+}
+
+// NOTE: SUPPORT_LINK renders above SECONDARY_LINKS with a "Need help?" label
+// and opens a modal with the email + copy-to-clipboard action (instead of
+// a raw mailto: link, which is unreliable when the user has no mail client).
+// The email itself is i18n-driven so projects can route support to a
+// locale-specific inbox. Set to null to hide the support block entirely.
+// t('nav.support', 'Support')
+// t('support.email', 'support@fazer.ai')
+export const SUPPORT_LINK: SupportContact | null = {
+  emailKey: "support.email",
+  defaultEmail: "support@fazer.ai",
+  labelKey: "nav.support",
+  defaultLabel: "Support",
+  icon: LifeBuoy,
+};
+
+// t('nav.website', 'fazer.ai')
+// t('nav.github', 'GitHub')
+export const SECONDARY_LINKS: FooterLink[] = [
+  {
+    href: "https://fazer.ai",
+    labelKey: "nav.website",
+    defaultLabel: "fazer.ai",
+    icon: Globe,
+  },
+  {
+    href: "https://github.com/fazer-ai/bunfire",
+    labelKey: "nav.github",
+    defaultLabel: "GitHub",
+    icon: GithubIcon,
+  },
+];

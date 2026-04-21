@@ -8,11 +8,12 @@
 2. `bun install`
 3. `bun setup` — renames all references (`package.json`, env vars, database identifiers) from `bunfire` to your repo's directory name
 4. Update `public/index.html` — change the `<title>` to your project name
-5. Remove pages you don't need:
+5. Update external links in the sidebar footer — edit `SUPPORT_LINK` and `SECONDARY_LINKS` in `src/client/lib/navigation.tsx` to point at your project's support channel, website, and repository. Set `SUPPORT_LINK = null` and/or empty `SECONDARY_LINKS = []` to hide either block; when both are empty the footer does not render.
+6. Remove pages you don't need:
    - **Signup page**: delete `src/client/pages/SignupPage.tsx`, remove its route from `src/client/App.tsx`, and remove the `/api/auth/signup` endpoint in `src/api/features/auth/`
    - **Admin page**: delete `src/client/pages/AdminPage.tsx`, remove its route from `src/client/App.tsx`, and remove `src/api/features/admin/` along with its mount in `src/app.ts`
    - **Google Sign-In**: see "Google OAuth (optional)" below to enable or remove
-6. Re-generate this file with `/init` to get a CLAUDE.md tailored to your new project
+7. Re-generate this file with `/init` to get a CLAUDE.md tailored to your new project
 
 ## Google OAuth (optional)
 
@@ -103,7 +104,8 @@ To narrow the takeover window for `bun set-admin`-created accounts, the Google l
 - `ProtectedRoute` wraps children in `<Layout>` — page components must NOT wrap themselves in `<Layout>`, they render content only
 - Only `ProtectedRoute` (in `src/client/components/ProtectedRoute.tsx`) should render `<Layout>` — it is the single source of the app shell
 - `<Layout>` composes `<Header>` (logo, mobile hamburger, `<UserMenu>`) + `<Sidebar>` (desktop aside or Radix Dialog drawer on mobile) + `<main>`. Navigation items are defined centrally in `src/client/lib/navigation.tsx`
-- `<UserMenu>` (`src/client/components/UserMenu.tsx`) is the single entry point for user-level actions: theme picker, language picker, logout. Do not add those controls to the header or sidebar directly
+- `<UserMenu>` (`src/client/components/UserMenu.tsx`) is the single entry point for user-level actions: theme picker, language picker, Settings shortcut, logout. Do not add those controls to the header or sidebar directly
+- `<Sidebar>` exposes a footer block (`SidebarFooter`) with external links (support / website / repo), configured via `SUPPORT_LINK` and `SECONDARY_LINKS` in `src/client/lib/navigation.tsx`. The footer is pinned below the scrollable nav, collapses to icon-only with tooltips when the sidebar is collapsed, and does not render if both constants are empty/null. Icons come from `lucide-react` except GitHub, which uses the inlined Octocat in `src/client/components/icons/GithubIcon.tsx` (lucide 1.8 does not export a GitHub glyph)
 - `<SidebarProvider>` (`src/client/contexts/SidebarContext.tsx`) owns sidebar state: `collapsed` and `width` persisted in `localStorage` under `@app:sidebar-*`, plus `mobileOpen` for the drawer. Keyboard shortcut Cmd/Ctrl+B toggles collapse (via `useSidebarShortcut`)
 - `<TooltipProvider>` wraps the app in `App.tsx`; any `<Tooltip>` call (`src/client/components/Tooltip.tsx`) inherits a 200ms delay. `<Modal>`, `<Tooltip>`, `<Toast>`, `<Sidebar>` mobile drawer and `<UserMenu>` are all thin wrappers over Radix primitives (`@radix-ui/react-{dialog,tooltip,toast,dropdown-menu}`) to get focus trap, collision detection, and ARIA correctness for free
 - `<PageContainer>` (`src/client/components/PageContainer.tsx`) is the single source of page-level max-width and horizontal centering. Every top-level page in `src/client/pages/*.tsx` must wrap its root JSX in `<PageContainer>`. Accepts `size="narrow" | "wide" | "full"` (default `"wide"`): `narrow` = `max-w-3xl` (forms, settings, reading), `wide` = `max-w-7xl` (dashboards, tables), `full` = no max-width (ultrawide tables, canvas). This rule is enforced by `biome-plugins/require-page-container.grit`, scoped to `src/client/pages/*.tsx`. Sub-pages under a layout route (e.g. `src/client/pages/settings/*.tsx`) are out of scope because their parent layout already wraps `<Outlet />` in `<PageContainer>`. Auth pages (Login, Signup) suppress the rule with `// biome-ignore lint/plugin: <reason>` because they render outside the main app shell

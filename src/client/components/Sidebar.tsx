@@ -1,8 +1,10 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, NavLink } from "react-router";
 
+import { SupportModal } from "@/client/components/SupportModal";
 import { Tooltip } from "@/client/components/Tooltip";
 import { useAuth } from "@/client/contexts/AuthContext";
 import {
@@ -11,9 +13,13 @@ import {
 } from "@/client/contexts/SidebarContext";
 import { useThemedAsset } from "@/client/contexts/ThemeContext";
 import {
+  type FooterLink,
   filterNavItems,
   NAV_ITEMS,
   type NavItem,
+  SECONDARY_LINKS,
+  SUPPORT_LINK,
+  type SupportContact,
 } from "@/client/lib/navigation";
 import { cn, getAssetUrl } from "@/client/lib/utils";
 import { SidebarResizer } from "./SidebarResizer";
@@ -95,6 +101,122 @@ function SidebarNav({
   );
 }
 
+interface SidebarFooterProps {
+  collapsed?: boolean;
+  onNavigate?: () => void;
+}
+
+function SidebarFooter({ collapsed = false, onNavigate }: SidebarFooterProps) {
+  const { t } = useTranslation();
+  const [supportOpen, setSupportOpen] = useState(false);
+
+  if (!SUPPORT_LINK && SECONDARY_LINKS.length === 0) return null;
+
+  const supportEmail = SUPPORT_LINK
+    ? // biome-ignore lint/plugin: extracted via magic comments in src/client/lib/navigation.tsx
+      t(SUPPORT_LINK.emailKey, SUPPORT_LINK.defaultEmail)
+    : null;
+  const supportMailto = supportEmail ? `mailto:${supportEmail}` : null;
+
+  const itemCls = cn(
+    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary",
+    { "justify-center": collapsed },
+  );
+
+  const renderBody = (
+    Icon: SupportContact["icon"] | FooterLink["icon"],
+    label: string,
+  ) => (
+    <>
+      <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+      {collapsed ? (
+        <span className="sr-only">{label}</span>
+      ) : (
+        <span className="truncate">{label}</span>
+      )}
+    </>
+  );
+
+  const wrapLi = (key: string, trigger: ReactNode, label: string) => (
+    <li key={key}>
+      {collapsed ? (
+        <Tooltip content={label} side="right" sideOffset={10}>
+          <span className="block">{trigger}</span>
+        </Tooltip>
+      ) : (
+        trigger
+      )}
+    </li>
+  );
+
+  let supportItem: ReactNode = null;
+  if (SUPPORT_LINK) {
+    // biome-ignore lint/plugin: extracted via magic comments in src/client/lib/navigation.tsx
+    const label = t(SUPPORT_LINK.labelKey, SUPPORT_LINK.defaultLabel);
+    const trigger = (
+      <button
+        type="button"
+        onClick={() => setSupportOpen(true)}
+        className={cn(itemCls, "w-full")}
+      >
+        {renderBody(SUPPORT_LINK.icon, label)}
+      </button>
+    );
+    supportItem = wrapLi("__support", trigger, label);
+  }
+
+  const secondaryItems = SECONDARY_LINKS.map((link) => {
+    // biome-ignore lint/plugin: extracted via magic comments in src/client/lib/navigation.tsx
+    const label = t(link.labelKey, link.defaultLabel);
+    const isExternal = /^https?:\/\//.test(link.href);
+    const trigger = (
+      <a
+        href={link.href}
+        onClick={onNavigate}
+        {...(isExternal && { target: "_blank", rel: "noopener noreferrer" })}
+        className={itemCls}
+      >
+        {renderBody(link.icon, label)}
+      </a>
+    );
+    return wrapLi(link.href, trigger, label);
+  });
+
+  return (
+    <>
+      <div className="shrink-0 border-border border-t p-2">
+        {supportItem && (
+          <>
+            {!collapsed && (
+              <p className="mb-1 truncate px-3 text-text-muted text-xs uppercase tracking-wide">
+                {t("nav.needHelp", "Need help?")}
+              </p>
+            )}
+            <ul className="flex flex-col gap-1">{supportItem}</ul>
+          </>
+        )}
+        {secondaryItems.length > 0 && (
+          <ul
+            className={cn("flex flex-col gap-1", {
+              "mt-3": !collapsed && supportItem !== null,
+            })}
+          >
+            {secondaryItems}
+          </ul>
+        )}
+      </div>
+      {supportEmail && supportMailto && (
+        <SupportModal
+          open={supportOpen}
+          onOpenChange={setSupportOpen}
+          email={supportEmail}
+          mailtoHref={supportMailto}
+        />
+      )}
+    </>
+  );
+}
+
 function SidebarCollapseToggle({ collapsed }: { collapsed: boolean }) {
   const { t } = useTranslation();
   const { toggleCollapsed } = useSidebar();
@@ -169,6 +291,7 @@ function MobileSidebar({ items, open, onOpenChange }: MobileSidebarProps) {
             variant="mobile"
             onNavigate={() => onOpenChange(false)}
           />
+          <SidebarFooter onNavigate={() => onOpenChange(false)} />
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
@@ -189,6 +312,7 @@ export function Sidebar() {
         className="group/sidebar relative hidden shrink-0 flex-col border-border border-r bg-bg-secondary transition-[width] duration-150 md:flex"
       >
         <SidebarNav items={items} variant="desktop" collapsed={collapsed} />
+        <SidebarFooter collapsed={collapsed} />
         <SidebarResizer />
         <SidebarCollapseToggle collapsed={collapsed} />
       </aside>
