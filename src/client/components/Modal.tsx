@@ -1,6 +1,6 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/client/lib/utils";
 
@@ -32,6 +32,26 @@ export function Modal({
   className,
 }: ModalProps) {
   const { t } = useTranslation();
+  const contentRef = useRef<HTMLDivElement>(null);
+  // NOTE: Radix closes on pointerdown-outside by default, which closes mid-drag
+  // (e.g. text selection released outside the modal). Instead we latch on
+  // pointerdown-outside and only close if pointerup also lands outside.
+  const pointerDownOutsideRef = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePointerUp = (e: PointerEvent) => {
+      if (!pointerDownOutsideRef.current) return;
+      pointerDownOutsideRef.current = false;
+      const target = e.target as Node | null;
+      if (!target || !contentRef.current?.contains(target)) onClose();
+    };
+    document.addEventListener("pointerup", handlePointerUp, true);
+    return () => {
+      document.removeEventListener("pointerup", handlePointerUp, true);
+      pointerDownOutsideRef.current = false;
+    };
+  }, [isOpen, onClose]);
 
   return (
     <DialogPrimitive.Root
@@ -43,6 +63,11 @@ export function Modal({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-(--z-modal-overlay) bg-black/50 data-[state=closed]:animate-out data-[state=open]:animate-in" />
         <DialogPrimitive.Content
+          ref={contentRef}
+          onPointerDownOutside={(e) => {
+            e.preventDefault();
+            pointerDownOutsideRef.current = true;
+          }}
           {...(description ? {} : { "aria-describedby": undefined })}
           className={cn(
             "data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-(--z-modal) flex max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col rounded-xl border border-border bg-bg-secondary focus:outline-none data-[state=closed]:animate-out data-[state=open]:animate-in",
