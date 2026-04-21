@@ -91,6 +91,36 @@ describe("Sidebar", () => {
     expect(toggles.length).toBeGreaterThanOrEqual(1);
   });
 
+  describe("footer", () => {
+    test("renders support button (opens modal, not a link)", () => {
+      renderSidebar();
+      const btn = screen.getByRole("button", { name: /^support$/i });
+      expect(btn.tagName).toBe("BUTTON");
+    });
+
+    test("renders secondary links with target=_blank and rel=noopener", () => {
+      renderSidebar();
+      const github = screen.getByRole("link", { name: /github/i });
+      expect(github).toHaveAttribute("target", "_blank");
+      expect(github).toHaveAttribute("rel", "noopener noreferrer");
+      expect(github.getAttribute("href")).toMatch(/^https:\/\//);
+    });
+
+    test("clicking support button opens a dialog with the email", () => {
+      renderSidebar();
+      const btn = screen.getByRole("button", { name: /^support$/i });
+      act(() => {
+        fireEvent.click(btn);
+      });
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      // The mailto anchor inside the dialog carries the support email.
+      const mailto = screen
+        .getAllByRole("link")
+        .find((a) => a.getAttribute("href")?.startsWith("mailto:"));
+      expect(mailto?.getAttribute("href")).toMatch(/^mailto:.+@.+/);
+    });
+  });
+
   describe("mobile drawer", () => {
     test("is not mounted when mobileOpen is false", () => {
       renderSidebar();

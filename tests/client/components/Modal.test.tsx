@@ -48,3 +48,9 @@ describe("Modal", () => {
     ).toBeInTheDocument();
   });
 });
+
+// NOTE: The pointerup-outside close behavior (only close when both mousedown
+// AND mouseup land outside the dialog) is not unit-tested: Radix's
+// onPointerDownOutside detection relies on layered document listeners that
+// happy-dom does not reliably trigger via fireEvent. Verify manually in a
+// browser, or cover via e2e (Playwright) if the behavior is critical.

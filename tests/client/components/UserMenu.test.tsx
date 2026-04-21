@@ -53,6 +53,7 @@ function renderMenu() {
         <Routes>
           <Route path="/" element={<UserMenu />} />
           <Route path="/login" element={<div>LOGIN_PAGE_MARKER</div>} />
+          <Route path="/settings" element={<div>SETTINGS_PAGE_MARKER</div>} />
         </Routes>
       </MemoryRouter>
     </TooltipPrimitive.Provider>,
@@ -106,6 +107,14 @@ describe("UserMenu", () => {
     const ptRadio = screen.getByRole("menuitemradio", { name: /português/i });
     fireEvent.click(ptRadio);
     expect(mockChangeLanguage).toHaveBeenCalledWith("pt-BR");
+  });
+
+  test("Settings menuitem navigates to /settings", () => {
+    renderMenu();
+    openDropdown();
+    const settingsItem = screen.getByRole("menuitem", { name: /settings/i });
+    fireEvent.click(settingsItem);
+    expect(screen.getByText("SETTINGS_PAGE_MARKER")).toBeInTheDocument();
   });
 
   test("logout menuitem calls logout and navigates to /login", async () => {
